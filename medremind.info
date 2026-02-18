@@ -1,0 +1,36 @@
+; --------------------
+; MedRemind Module Info
+; --------------------
+; This file registers our module with Drupal.
+; Without this file, Drupal won't know our module exists.
+; Think of it like package.json in Node.js
+
+name = MedRemind
+; ↑ Module name shown on Admin → Modules page
+
+description = Medication reminder and tracking SaaS application.
+; ↑ Short description shown below the module name
+
+core = 7.x
+; ↑ Required! Tells Drupal this module is for Drupal 7
+
+package = MedRemind
+; ↑ Groups this module under "MedRemind" section on Modules page
+
+version = 7.x-1.0
+; ↑ Version number: 7.x = Drupal 7 compatible, 1.0 = first release
+
+php = 5.3
+; ↑ Minimum PHP version needed to run this module
+
+; Auto-load CSS on every page where module is active
+stylesheets[all][] = medremind.css
+
+; Auto-load JavaScript
+scripts[] = js/medremind.js
+
+; Required Drupal core modules
+dependencies[] = system
+
+; "Configure" link on Modules page (points to our admin page)
+configure = admin/config/medremind
