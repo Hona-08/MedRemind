@@ -1,0 +1,367 @@
+<?php
+
+/**
+ * @file
+ * Main module file for MedRemind.
+ * Contains all hook implementations.
+ * Heavy logic lives in includes/ files to keep this file clean.
+ */
+
+
+// ============================================
+// CONSTANTS
+// Use these instead of random numbers/strings
+// Makes code readable: MEDREMIND_STATUS_ACTIVE vs just "1"
+// ============================================
+
+define('MEDREMIND_STATUS_ACTIVE', 1);    // Medication is active
+define('MEDREMIND_STATUS_PAUSED', 0);    // Medication is paused
+define('MEDREMIND_ACTION_TAKEN', 'taken');    // User took the dose
+define('MEDREMIND_ACTION_MISSED', 'missed');  // User missed the dose
+define('MEDREMIND_ACTION_SKIPPED', 'skipped'); // User skipped the dose
+define('MEDREMIND_DEFAULT_REMINDER', 15);     // Remind 15 minutes before
+
+
+// ============================================
+// HOOK_MENU — Defines all URL routes
+// Like app.get('/path', handler) in Express.js
+// Drupal auto-discovers this function from .module file
+// ============================================
+
+/**
+ * Implements hook_menu().
+ */
+function medremind_menu() {
+  $items = array();
+
+  // Split routes into groups using helper functions
+  // This keeps hook_menu() short and organized
+  _medremind_user_routes($items);
+  _medremind_ajax_routes($items);
+  _medremind_admin_routes($items);
+
+  return $items; // Return all routes to Drupal
+}
+
+
+// ============================================
+// HOOK_PERMISSION — Defines custom permissions
+// Shows up in Admin → People → Permissions
+// ============================================
+
+/**
+ * Implements hook_permission().
+ */
+function medremind_permission() {
+  return array(
+
+    // Admin-only permission
+    'administer medremind' => array(
+      'title' => t('Administer MedRemind'),
+      // t() = translation function. ALWAYS wrap user-facing text in t()
+      'description' => t('Access admin settings and reports.'),
+    ),
+
+    // Regular user permission
+    'use medremind' => array(
+      'title' => t('Use MedRemind'),
+      'description' => t('Add medications and track doses.'),
+    ),
+  );
+}
+
+
+// ============================================
+// HOOK_THEME — Registers template files (.tpl.php)
+// Tells Drupal which templates exist and what data they need
+// Like setting up view engine in Express
+// ============================================
+
+/**
+ * Implements hook_theme().
+ */
+function medremind_theme($existing, $type, $theme, $path) {
+  return array(
+
+    // Dashboard page template
+    'medremind_dashboard' => array(
+      'variables' => array(      // Variables the template can use
+        'medications' => array(),  // List of medications
+        'stats' => array(),        // User statistics
+        'user_name' => '',         // User's display name
+      ),
+      'template' => 'templates/medremind-dashboard',
+      // ↑ Points to templates/medremind-dashboard.tpl.php
+      //   Drupal auto-adds .tpl.php extension
+    ),
+
+    // Single medication card template
+    'medremind_med_card' => array(
+      'variables' => array(
+        'medication' => NULL,   // Medication data
+        'next_dose' => '',      // Next dose time string
+        'streak' => 0,          // Current streak count
+      ),
+      'template' => 'templates/medremind-med-card',
+    ),
+
+    // History page template
+    'medremind_history' => array(
+      'variables' => array(
+        'logs' => array(),     // Dose log entries
+        'month' => '',         // Month being viewed
+        'adherence' => 0,      // Adherence percentage
+      ),
+      'template' => 'templates/medremind-history',
+    ),
+  );
+}
+
+
+// ============================================
+// HOOK_HELP — Module help text
+// Shows on Admin → Help page
+// ============================================
+
+/**
+ * Implements hook_help().
+ */
+function medremind_help($path, $arg) {
+  if ($path == 'admin/help#medremind') {
+    return '<p>' . t('MedRemind helps users track medications and never miss a dose.') . '</p>';
+  }
+}
+
+
+// ============================================
+// HOOK_CRON — Runs on scheduled intervals
+// Drupal's cron runs this automatically (every few hours)
+// We use it to send medication reminders
+// ============================================
+
+/**
+ * Implements hook_cron().
+ */
+function medremind_cron() {
+  // Load the heavy cron logic from a separate file
+  // module_load_include('file_type', 'module_name', 'path_without_extension')
+  module_load_include('inc', 'medremind', 'includes/medremind.cron');
+  _medremind_process_reminders();
+}
+
+
+// ============================================
+// HOOK_BLOCK_INFO — Register blocks (sidebar widgets)
+// Tells Drupal "I have these blocks available"
+// ============================================
+
+/**
+ * Implements hook_block_info().
+ */
+function medremind_block_info() {
+  return array(
+    'next_dose' => array(
+      'info' => t('MedRemind: Next Dose'),  // Block name in admin
+      'cache' => DRUPAL_NO_CACHE,  // Don't cache — data is different per user
+    ),
+  );
+}
+
+
+// ============================================
+// HOOK_BLOCK_VIEW — What to show inside a block
+// Called when Drupal renders the block on a page
+// ============================================
+
+/**
+ * Implements hook_block_view().
+ */
+function medremind_block_view($delta = '') {
+  // $delta = which block (we might have multiple)
+  $block = array();
+
+  if ($delta == 'next_dose') {
+    $block['subject'] = t('Next Dose');
+    $block['content'] = t('Your next dose information will appear here.');
+  }
+
+  return $block;
+}
+
+
+// ============================================
+// ROUTE HELPERS — Called by hook_menu()
+// Underscore prefix _ means "private/internal function"
+// These organize our routes into logical groups
+// ============================================
+
+/**
+ * Helper: Define user-facing routes.
+ *
+ * @param array &$items
+ *   Route array passed by reference (& means changes apply to original).
+ */
+function _medremind_user_routes(&$items) {
+
+  // Main dashboard — yoursite.com/medremind
+  $items['medremind'] = array(
+    'title' => 'My Medications',         // Browser tab title + page heading
+    'page callback' => 'medremind_dashboard_page',  // Function to call
+    'access callback' => 'user_is_logged_in',  // Only logged-in users
+    'type' => MENU_NORMAL_ITEM,          // Shows in navigation menu
+    'file' => 'includes/medremind.pages.inc',  // Load callback from this file
+    // ↑ Drupal loads this file ONLY when this route is visited (good for performance)
+  );
+
+  // Default tab on dashboard
+  $items['medremind/dashboard'] = array(
+    'title' => 'Dashboard',
+    'type' => MENU_DEFAULT_LOCAL_TASK,   // Makes this the default active tab
+    'weight' => 0,                       // Tab order: lower = more left
+  );
+
+  // Add medication page
+  $items['medremind/add'] = array(
+    'title' => 'Add Medication',
+    'page callback' => 'drupal_get_form', // Drupal's built-in form renderer
+    'page arguments' => array('medremind_medication_form'), // Form function name
+    // ↑ drupal_get_form() will call medremind_medication_form() to build the form
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,           // Shows as a tab
+    'file' => 'includes/medremind.forms.inc',
+    'weight' => 1,
+  );
+
+  // History page
+  $items['medremind/history'] = array(
+    'title' => 'History',
+    'page callback' => 'medremind_history_page',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/medremind.pages.inc',
+    'weight' => 2,
+  );
+
+  // User settings page
+  $items['medremind/settings'] = array(
+    'title' => 'My Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('medremind_user_settings_form'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'includes/medremind.forms.inc',
+    'weight' => 3,
+  );
+
+  // Edit medication — /medremind/edit/5 (5 = medication ID)
+  $items['medremind/edit/%'] = array(
+    // ↑ % = wildcard. Captures any value from URL
+    //   medremind/edit/% → position 0/1/2
+    //   So % is at position 2
+    'title' => 'Edit Medication',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('medremind_medication_form', 2),
+    // ↑ 2 = pass the value at position 2 (the med_id) to the form function
+    'access callback' => 'medremind_medication_access',
+    // ↑ Our custom function that checks: does this med belong to current user?
+    'access arguments' => array(2),  // Pass med_id to access check too
+    'type' => MENU_CALLBACK,  // No menu link, but URL works
+    'file' => 'includes/medremind.forms.inc',
+  );
+
+  // Delete medication (with confirmation)
+  $items['medremind/delete/%'] = array(
+    'title' => 'Delete Medication',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('medremind_delete_confirm_form', 2),
+    'access callback' => 'medremind_medication_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/medremind.forms.inc',
+  );
+}
+
+/**
+ * Helper: Define AJAX routes (no page reload).
+ */
+function _medremind_ajax_routes(&$items) {
+
+  // Mark dose as taken (called by JavaScript)
+  $items['medremind/take/%/ajax'] = array(
+    'page callback' => 'medremind_take_dose_ajax',
+    'page arguments' => array(2),
+    'access callback' => 'medremind_medication_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,  // Hidden URL, called by JS only
+    'file' => 'includes/medremind.ajax.inc',
+  );
+
+  // Mark dose as skipped
+  $items['medremind/skip/%/ajax'] = array(
+    'page callback' => 'medremind_skip_dose_ajax',
+    'page arguments' => array(2),
+    'access callback' => 'medremind_medication_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/medremind.ajax.inc',
+  );
+}
+
+/**
+ * Helper: Define admin routes.
+ */
+function _medremind_admin_routes(&$items) {
+
+  // Admin settings page
+  $items['admin/config/medremind'] = array(
+    'title' => 'MedRemind Settings',
+    'description' => 'Configure MedRemind module settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('medremind_admin_settings_form'),
+    'access arguments' => array('administer medremind'),
+    // ↑ When access arguments is a string, Drupal checks if user has that permission
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'includes/medremind.admin.inc',
+  );
+}
+
+
+// ============================================
+// ACCESS CALLBACKS
+// These check if user is allowed to do something
+// Return TRUE = allowed, FALSE = denied
+// ============================================
+
+/**
+ * Check if current user owns the medication.
+ *
+ * @param int $med_id
+ *   The medication ID to check.
+ *
+ * @return bool
+ *   TRUE if user can access, FALSE if not.
+ */
+function medremind_medication_access($med_id) {
+  global $user;
+  // ↑ global $user = Drupal's current logged-in user object
+  //   $user->uid = user ID number
+
+  // Admins can access everything
+  if (user_access('administer medremind')) {
+    // ↑ user_access() checks if current user has this permission
+    return TRUE;
+  }
+
+  // Check if this medication belongs to current user
+  $owner = db_query(
+    'SELECT uid FROM {medremind_medications} WHERE med_id = :mid',
+    // ↑ {table_name} = Drupal auto-adds table prefix
+    //   :mid = placeholder (prevents SQL injection! NEVER put variables in SQL directly)
+    array(':mid' => $med_id)
+    // ↑ Bind the actual value to the placeholder safely
+  )->fetchField();
+  // ↑ fetchField() = get single value from query result
+
+  return ($owner == $user->uid);
+  // ↑ TRUE if medication owner matches current user
+}
