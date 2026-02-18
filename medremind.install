@@ -1,0 +1,612 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for MedRemind.
+ * 
+ * This file is SPECIAL in Drupal:
+ * - hook_schema() = creates database tables when module is enabled
+ * - hook_install() = runs ONCE when module is first enabled
+ * - hook_uninstall() = runs when module is uninstalled (cleanup)
+ * 
+ * Drupal handles table creation automatically from hook_schema()!
+ * You never write CREATE TABLE SQL manually.
+ */
+
+
+// ============================================
+// HOOK_SCHEMA — Define all database tables
+// Drupal reads this and creates tables for you
+// Like writing a migration file in Laravel/Sequelize
+// ============================================
+
+/**
+ * Implements hook_schema().
+ */
+function medremind_schema() {
+  $schema = array();
+  // ↑ Array to hold all our table definitions
+
+
+  // -----------------------------------------
+  // TABLE 1: medremind_medications
+  // Stores each medication a user adds
+  // -----------------------------------------
+  $schema['medremind_medications'] = array(
+
+    'description' => 'Stores user medications.',
+    // ↑ Human-readable description of the table
+
+    'fields' => array(
+      // ↑ Define every column in the table
+
+      'med_id' => array(
+        'description' => 'Unique medication ID.',
+        'type' => 'serial',    // serial = auto-increment integer (1, 2, 3...)
+        'unsigned' => TRUE,    // No negative numbers
+        'not null' => TRUE,    // Cannot be empty
+      ),
+
+      'uid' => array(
+        'description' => 'User ID who owns this medication.',
+        'type' => 'int',       // Regular integer
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,        // Default value if not provided
+      ),
+
+      'name' => array(
+        'description' => 'Medication name (e.g., Paracetamol).',
+        'type' => 'varchar',   // Variable-length string
+        'length' => 255,       // Max 255 characters
+        'not null' => TRUE,
+        'default' => '',
+      ),
+
+      'dosage' => array(
+        'description' => 'Dosage amount (e.g., 500mg, 2 tablets).',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+
+      'frequency' => array(
+        'description' => 'How often: daily, twice_daily, weekly, custom.',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'daily',
+      ),
+
+      'times' => array(
+        'description' => 'Dose times stored as JSON (e.g., ["08:00","20:00"]).',
+        'type' => 'text',     // text = unlimited length string
+        'size' => 'normal',   // normal size (up to 64KB)
+        'not null' => FALSE,  // Can be empty
+        // ↑ We store times as JSON string because Drupal 7
+        //   does not have a native JSON column type
+      ),
+
+      'start_date' => array(
+        'description' => 'When to start taking this medication.',
+        'type' => 'int',      // Stored as Unix timestamp (seconds since 1970)
+        'unsigned' => TRUE,    // ↑ Drupal stores dates as timestamps, not DATE type
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'end_date' => array(
+        'description' => 'When to stop. 0 = ongoing/no end date.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,        // 0 means no end date (take forever)
+      ),
+
+      'notes' => array(
+        'description' => 'Special instructions (e.g., take with food).',
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => FALSE,
+      ),
+
+      'status' => array(
+        'description' => '1 = active, 0 = paused.',
+        'type' => 'int',
+        'size' => 'tiny',     // tiny = small number (0-255)
+        'not null' => TRUE,
+        'default' => 1,       // Default: active
+      ),
+
+      'created' => array(
+        'description' => 'Timestamp when medication was added.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'updated' => array(
+        'description' => 'Timestamp when medication was last modified.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+
+    'primary key' => array('med_id'),
+    // ↑ Primary key = unique identifier for each row
+    //   Like the _id field in MongoDB
+
+    'indexes' => array(
+      'uid' => array('uid'),
+      // ↑ Index on uid column = faster queries when filtering by user
+      //   Like creating an index in MongoDB: db.collection.createIndex({uid: 1})
+
+      'status' => array('status'),
+      // ↑ Index on status = fast filtering active/paused medications
+
+      'uid_status' => array('uid', 'status'),
+      // ↑ Compound index = very fast when querying "all active meds for user X"
+    ),
+
+    'foreign keys' => array(
+      'medication_user' => array(
+        'table' => 'users',       // Links to Drupal's users table
+        'columns' => array('uid' => 'uid'),
+        // ↑ Our uid column → users table uid column
+        // Note: Drupal 7 doesn't enforce foreign keys in MySQL
+        //       but documenting them is best practice
+      ),
+    ),
+  );
+
+
+  // -----------------------------------------
+  // TABLE 2: medremind_schedule
+  // Individual dose times for each medication
+  // One medication can have multiple dose times
+  // -----------------------------------------
+  $schema['medremind_schedule'] = array(
+
+    'description' => 'Dose schedule times for medications.',
+
+    'fields' => array(
+
+      'schedule_id' => array(
+        'description' => 'Unique schedule ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+
+      'med_id' => array(
+        'description' => 'Which medication this schedule belongs to.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'uid' => array(
+        'description' => 'User ID (duplicated for faster queries).',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        // ↑ We duplicate uid here even though it exists in medications table
+        //   This avoids JOINs when we just need schedules for a user
+        //   This is called "denormalization" — trading storage for speed
+      ),
+
+      'dose_time' => array(
+        'description' => 'Time of dose in 24hr format (e.g., 08:00, 14:30).',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+        'default' => '08:00',
+      ),
+
+      'days_of_week' => array(
+        'description' => 'Which days: "all" or "mon,wed,fri" etc.',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'all',
+        // ↑ "all" = every day
+        //   "mon,wed,fri" = specific days only
+      ),
+
+      'status' => array(
+        'description' => '1 = active, 0 = disabled.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+
+    'primary key' => array('schedule_id'),
+
+    'indexes' => array(
+      'med_id' => array('med_id'),
+      'uid' => array('uid'),
+      'uid_status' => array('uid', 'status'),
+    ),
+
+    'foreign keys' => array(
+      'schedule_medication' => array(
+        'table' => 'medremind_medications',
+        'columns' => array('med_id' => 'med_id'),
+      ),
+    ),
+  );
+
+
+  // -----------------------------------------
+  // TABLE 3: medremind_log
+  // Records every dose: taken, missed, or skipped
+  // This is the heart of the tracking system
+  // -----------------------------------------
+  $schema['medremind_log'] = array(
+
+    'description' => 'Log of medication doses taken, missed, or skipped.',
+
+    'fields' => array(
+
+      'log_id' => array(
+        'description' => 'Unique log entry ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+
+      'med_id' => array(
+        'description' => 'Which medication.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'uid' => array(
+        'description' => 'Which user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'scheduled_time' => array(
+        'description' => 'When the dose was supposed to be taken.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'action' => array(
+        'description' => 'What happened: taken, missed, or skipped.',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => '',
+        // ↑ Uses our constants: MEDREMIND_ACTION_TAKEN, etc.
+      ),
+
+      'action_time' => array(
+        'description' => 'When the user actually took/skipped the dose.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        // ↑ 0 = not taken yet (for missed doses)
+        //   Timestamp = when they clicked "Take" button
+      ),
+
+      'notes' => array(
+        'description' => 'Optional note (e.g., "took late", "felt dizzy").',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+
+    'primary key' => array('log_id'),
+
+    'indexes' => array(
+      'uid' => array('uid'),
+      'med_id' => array('med_id'),
+      'action' => array('action'),
+      'uid_date' => array('uid', 'scheduled_time'),
+      // ↑ Compound index for "show me all doses for user X on date Y"
+      //   This query runs on every dashboard load, so it must be fast
+    ),
+  );
+
+
+  // -----------------------------------------
+  // TABLE 4: medremind_reminders
+  // Queued reminders waiting to be sent
+  // Cron job processes these and sends emails
+  // -----------------------------------------
+  $schema['medremind_reminders'] = array(
+
+    'description' => 'Queued medication reminders to be sent.',
+
+    'fields' => array(
+
+      'reminder_id' => array(
+        'description' => 'Unique reminder ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+
+      'uid' => array(
+        'description' => 'Which user to remind.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'med_id' => array(
+        'description' => 'Which medication.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'reminder_time' => array(
+        'description' => 'When to send the reminder.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'method' => array(
+        'description' => 'How to remind: email or onsite notification.',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+        'default' => 'email',
+      ),
+
+      'sent' => array(
+        'description' => '0 = pending, 1 = already sent.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+        // ↑ Cron checks for sent=0, processes them, then sets sent=1
+      ),
+
+      'created' => array(
+        'description' => 'When this reminder was created.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+
+    'primary key' => array('reminder_id'),
+
+    'indexes' => array(
+      'sent' => array('sent'),
+      // ↑ Fast lookup for unsent reminders (cron runs: WHERE sent = 0)
+
+      'uid' => array('uid'),
+
+      'reminder_time' => array('reminder_time'),
+      // ↑ Fast lookup for reminders due now
+    ),
+  );
+
+
+  // -----------------------------------------
+  // TABLE 5: medremind_streaks
+  // Tracks how many days in a row user took their meds
+  // Gamification = motivates users to keep taking meds
+  // -----------------------------------------
+  $schema['medremind_streaks'] = array(
+
+    'description' => 'Tracks medication adherence streaks.',
+
+    'fields' => array(
+
+      'streak_id' => array(
+        'description' => 'Unique streak ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+
+      'uid' => array(
+        'description' => 'Which user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'med_id' => array(
+        'description' => 'Which medication.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+
+      'current_streak' => array(
+        'description' => 'Current consecutive days of doses taken.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        // ↑ Resets to 0 if user misses a dose
+      ),
+
+      'best_streak' => array(
+        'description' => 'Longest streak ever achieved.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        // ↑ Never resets — keeps the all-time record
+      ),
+
+      'last_taken' => array(
+        'description' => 'Timestamp of last taken dose.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+
+    'primary key' => array('streak_id'),
+
+    'indexes' => array(
+      'uid' => array('uid'),
+      'med_id' => array('med_id'),
+      'uid_med' => array('uid', 'med_id'),
+      // ↑ Compound index: fast lookup for "streak of medication X for user Y"
+    ),
+  );
+
+
+  // -----------------------------------------
+  // TABLE 6: medremind_settings
+  // Per-user preferences and configuration
+  // Each user gets one row in this table
+  // -----------------------------------------
+  $schema['medremind_settings'] = array(
+
+    'description' => 'User preferences for MedRemind.',
+
+    'fields' => array(
+
+      'uid' => array(
+        'description' => 'User ID. One row per user.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        // ↑ No serial here! We use uid as primary key
+        //   because each user has exactly ONE settings row
+      ),
+
+      'reminder_email' => array(
+        'description' => '1 = send email reminders, 0 = off.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,  // On by default
+      ),
+
+      'reminder_before' => array(
+        'description' => 'Minutes before dose time to send reminder.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 15,  // 15 minutes before
+      ),
+
+      'timezone' => array(
+        'description' => 'User timezone (e.g., Asia/Kathmandu).',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+        'default' => 'UTC',
+      ),
+
+      'daily_summary' => array(
+        'description' => '1 = send daily summary email, 0 = off.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 1,  // On by default
+      ),
+    ),
+
+    'primary key' => array('uid'),
+    // ↑ uid is the primary key (not serial)
+    //   This ensures one settings row per user
+
+    'foreign keys' => array(
+      'settings_user' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+
+  return $schema;
+  // ↑ Return all table definitions
+  //   Drupal reads this and creates all 6 tables automatically!
+}
+
+
+// ============================================
+// HOOK_INSTALL — Runs ONCE when module is enabled
+// Use for one-time setup tasks
+// ============================================
+
+/**
+ * Implements hook_install().
+ */
+function medremind_install() {
+
+  // Set default admin variables
+  variable_set('medremind_site_name', 'MedRemind');
+  // ↑ variable_set('name', 'value') = stores a setting in Drupal's variables table
+  //   Like a key-value store for module configuration
+  //   Retrieve later with: variable_get('medremind_site_name', 'default')
+
+  variable_set('medremind_reminder_enabled', 1);
+  // ↑ Global setting: are reminders enabled?
+
+  variable_set('medremind_max_medications', 20);
+  // ↑ Maximum medications per user (prevent abuse)
+
+  // Log that installation was successful
+  drupal_set_message(t('MedRemind installed successfully. @link', array(
+    '@link' => l(t('Configure settings'), 'admin/config/medremind'),
+    // ↑ drupal_set_message() shows a green success message on the page
+    //   We include a link to the settings page for convenience
+  )));
+
+  watchdog('medremind', 'MedRemind module installed.');
+  // ↑ Log to Admin → Reports → Recent log messages
+}
+
+
+// ============================================
+// HOOK_UNINSTALL — Runs when module is uninstalled
+// Clean up everything: delete variables, clear data
+// Tables are deleted automatically (Drupal reads hook_schema)
+// ============================================
+
+/**
+ * Implements hook_uninstall().
+ */
+function medremind_uninstall() {
+
+  // Delete all our variables from the database
+  variable_del('medremind_site_name');
+  variable_del('medremind_reminder_enabled');
+  variable_del('medremind_max_medications');
+  // ↑ variable_del() removes the variable completely
+  //   Always clean up after yourself!
+
+  // Log the uninstall
+  watchdog('medremind', 'MedRemind module uninstalled. All data removed.');
+}
+  // Note: Drupal automatically drops all tables defined in hook_schema()
+  // So we don't need to manually delete tables
