@@ -1,0 +1,92 @@
+/* --- Welcome / Dashboard Card --- */
+.medremind-welcome {
+  max-width: 800px;           /* Don't stretch too wide */
+  margin: 20px auto;          /* Center on page */
+  padding: 30px;
+  background: #f8f9fa;        /* Light gray background */
+  border-radius: 10px;
+  text-align: center;
+}
+
+.medremind-logo {
+  font-size: 60px;            /* Big emoji icon */
+  margin-bottom: 10px;
+}
+
+.medremind-welcome h2 {
+  color: #2c3e50;             /* Dark blue */
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.medremind-welcome p {
+  color: #666;
+  font-size: 16px;
+}
+
+/* --- Add Medication Button --- */
+.medremind-add-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  /* ↑ Gradient from blue to purple */
+  color: #fff !important;     /* !important overrides Drupal's default link color */
+  padding: 12px 28px;
+  border-radius: 8px;
+  text-decoration: none !important;  /* Remove underline */
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  /* ↑ Smooth animation on hover */
+}
+
+.medremind-add-btn:hover {
+  transform: translateY(-2px);  /* Lift up slightly */
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);  /* Glow effect */
+  color: #fff !important;
+}
+
+/* --- Tabs Styling --- */
+/* All tabs */
+ul.tabs.primary {
+  border-bottom: 2px solid #667eea;
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+ul.tabs.primary li {
+  margin: 0 2px 0 0;
+}
+
+/* Normal tab (not clicked) */
+ul.tabs.primary li a,
+ul.tabs.primary li a:link,
+ul.tabs.primary li a:visited {
+  color: #333 !important;
+  background: #e8e8e8 !important;
+  padding: 10px 22px !important;
+  border-radius: 6px 6px 0 0 !important;
+  border: 1px solid #ccc !important;
+  border-bottom: none !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+}
+
+/* Active tab (currently selected) */
+ul.tabs.primary li.active a,
+ul.tabs.primary li.active a:link,
+ul.tabs.primary li.active a:visited,
+ul.tabs.primary li a.active,
+ul.tabs.primary li a.active:link,
+ul.tabs.primary li a.active:visited {
+  color: #fff !important;
+  background: #667eea !important;
+  border-color: #667eea !important;
+}
+
+/* Hover effect */
+ul.tabs.primary li a:hover {
+  color: #fff !important;
+  background: #764ba2 !important;
+  border-color: #764ba2 !important;
+}
