@@ -458,3 +458,145 @@ ul.tabs.primary li a:hover {
     text-align: center;
   }
 }
+/* ============================================
+ * Forms Styling
+ * ============================================ */
+
+/* Form wrapper */
+.page-medremind-add #content,
+.page-medremind-edit #content,
+.page-medremind-settings #content {
+  max-width: 750px;
+}
+
+/* All form labels */
+.form-item label {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+/* Text inputs and selects */
+.form-text,
+.form-select,
+.form-textarea {
+  border: 2px solid #e0e0e0 !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  font-size: 14px !important;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+/* Input focus state (when clicked) */
+.form-text:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: #667eea !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15) !important;
+}
+
+/* Description text below fields */
+.form-item .description {
+  color: #999;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Required asterisk */
+.form-required {
+  color: #e74c3c;
+}
+
+/* Fieldset (grouped fields) */
+fieldset {
+  border: 2px solid #e8e8e8 !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+  margin-bottom: 20px;
+}
+
+fieldset legend {
+  color: #667eea;
+  font-weight: bold;
+  font-size: 15px;
+  padding: 0 10px;
+}
+
+/* Submit Button */
+.medremind-submit-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 12px 35px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.medremind-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Cancel Link */
+.medremind-cancel-btn {
+  color: #999 !important;
+  text-decoration: none !important;
+  margin-left: 15px;
+  font-size: 14px;
+}
+
+.medremind-cancel-btn:hover {
+  color: #e74c3c !important;
+}
+
+/* Checkbox styling */
+.form-type-checkbox label {
+  font-weight: normal;
+  color: #555;
+}
+
+/* Date select dropdowns */
+.form-type-date .container-inline .form-select {
+  width: auto !important;
+  display: inline-block !important;
+  margin-right: 5px;
+}
+
+/* Error messages */
+.messages.error {
+  background: #fdf0f0;
+  border-left: 4px solid #e74c3c;
+  color: #c0392b;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+/* Success messages */
+.messages.status {
+  background: #f0fdf0;
+  border-left: 4px solid #27ae60;
+  color: #1e8449;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+/* Delete confirmation page */
+.confirmation {
+  max-width: 600px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.confirmation .description {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
