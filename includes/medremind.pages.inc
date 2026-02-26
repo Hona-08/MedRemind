@@ -150,7 +150,7 @@ function _medremind_get_next_dose($med) {
   }
 
   // All doses passed for today
-  return t('Done for today ✓');
+  return t('Add dose');
 }
 
 /**

@@ -1,195 +1,360 @@
-/* --- Welcome / Dashboard Card --- */
-.medremind-welcome {
-  max-width: 800px;           /* Don't stretch too wide */
-  margin: 20px auto;          /* Center on page */
-  padding: 30px;
-  background: #f8f9fa;        /* Light gray background */
-  border-radius: 10px;
-  text-align: center;
-}
-
-.medremind-logo {
-  font-size: 60px;            /* Big emoji icon */
-  margin-bottom: 10px;
-}
-
-.medremind-welcome h2 {
-  color: #2c3e50;             /* Dark blue */
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.medremind-welcome p {
-  color: #666;
-  font-size: 16px;
-}
-
-/* --- Add Medication Button --- */
-.medremind-add-btn {
-  display: inline-block;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  /* ↑ Gradient from blue to purple */
-  color: #fff !important;     /* !important overrides Drupal's default link color */
-  padding: 12px 28px;
-  border-radius: 8px;
-  text-decoration: none !important;  /* Remove underline */
-  font-weight: bold;
-  font-size: 16px;
-  margin-top: 15px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  /* ↑ Smooth animation on hover */
-}
-
-.medremind-add-btn:hover {
-  transform: translateY(-2px);  /* Lift up slightly */
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);  /* Glow effect */
-  color: #fff !important;
-}
-
-/* --- Tabs Styling --- */
-/* All tabs */
-ul.tabs.primary {
-  border-bottom: 2px solid #667eea;
-  margin-bottom: 20px;
-  padding: 0;
-}
-
-ul.tabs.primary li {
-  margin: 0 2px 0 0;
-}
-
-/* Normal tab (not clicked) */
-ul.tabs.primary li a,
-ul.tabs.primary li a:link,
-ul.tabs.primary li a:visited {
-  color: #333 !important;
-  background: #e8e8e8 !important;
-  padding: 10px 22px !important;
-  border-radius: 6px 6px 0 0 !important;
-  border: 1px solid #ccc !important;
-  border-bottom: none !important;
-  text-decoration: none !important;
-  display: inline-block !important;
-}
-
-/* Active tab (currently selected) */
-ul.tabs.primary li.active a,
-ul.tabs.primary li.active a:link,
-ul.tabs.primary li.active a:visited,
-ul.tabs.primary li a.active,
-ul.tabs.primary li a.active:link,
-ul.tabs.primary li a.active:visited {
-  color: #fff !important;
-  background: #667eea !important;
-  border-color: #667eea !important;
-}
-
-/* Hover effect */
-ul.tabs.primary li a:hover {
-  color: #fff !important;
-  background: #764ba2 !important;
-  border-color: #764ba2 !important;
-}
-
 /* ============================================
- * Dashboard Stats Bar
+ * MedRemind — Complete SaaS Stylesheet
+ * Replace your ENTIRE medremind.css with this
  * ============================================ */
 
-.medremind-stats-bar {
-  display: flex;                    /* Arrange cards in a row */
-  gap: 15px;                       /* Space between cards */
-  margin-bottom: 25px;
-  flex-wrap: wrap;                  /* Wrap on small screens */
+
+/* ============================================
+ * GLOBAL — Hide Drupal Clutter
+ * ============================================ */
+
+/* Hide breadcrumbs */
+.breadcrumb {
+  display: none !important;
 }
 
-.stat-card {
-  flex: 1;                         /* Each card takes equal width */
-  min-width: 150px;
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border-left: 4px solid #ccc;     /* Colored left border */
+/* Hide "Home" breadcrumb link */
+#content .breadcrumb,
+.region-content .breadcrumb {
+  display: none !important;
 }
 
-.stat-total  { border-left-color: #667eea; }  /* Purple */
-.stat-taken  { border-left-color: #27ae60; }  /* Green */
-.stat-missed { border-left-color: #e74c3c; }  /* Red */
-.stat-streak { border-left-color: #f39c12; }  /* Orange */
-
-.stat-number {
-  font-size: 32px;
-  font-weight: bold;
-  color: #2c3e50;
+/* Hide secondary menu */
+#secondary-menu {
+  display: none !important;
 }
 
-.stat-label {
-  font-size: 13px;
-  color: #888;
-  margin-top: 5px;
-  text-transform: uppercase;       /* TOTAL MEDS */
+/* Hide Drupal footer */
+#footer-wrapper .block-system,
+#footer {
+  display: none !important;
+}
+
+/* Hide page title on all medremind pages */
+.page-medremind h1#page-title,
+.page-medremind-add h1#page-title,
+.page-medremind-edit h1#page-title,
+.page-medremind-history h1#page-title,
+.page-medremind-settings h1#page-title,
+.page-medremind-delete h1#page-title {
+  display: none !important;
+}
+
+/* Hide duplicate tabs — top menu handles navigation */
+ul.tabs.primary,
+ul.tabs.secondary {
+  display: none !important;
+}
+
+/* Hide action links */
+ul.action-links {
+  display: none !important;
+}
+
+
+/* ============================================
+ * HEADER — MedRemind Branded Header
+ * ============================================ */
+
+#header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  padding: 0 !important;
+  position: relative;
+}
+
+/* Hide Drupal logo */
+#logo {
+  display: none !important;
+}
+
+/* Site name */
+#name-and-slogan {
+  margin: 0 !important;
+  padding: 18px 30px !important;
+  float: left;
+}
+
+#site-name {
+  margin: 0 !important;
+  line-height: 1.2;
+}
+
+#site-name a {
+  color: #fff !important;
+  font-size: 24px !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
   letter-spacing: 0.5px;
 }
 
+#site-slogan {
+  color: rgba(255, 255, 255, 0.75) !important;
+  font-size: 12px !important;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+/* Top right links (My account, Log out) */
+#header .region-header {
+  float: right;
+  padding: 22px 30px;
+}
+
+#header .region-header .links li {
+  display: inline-block;
+}
+
+#header .region-header .links a {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration: none !important;
+  font-size: 13px;
+  margin-left: 15px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+#header .region-header .links a:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff !important;
+}
+
 
 /* ============================================
- * Section Headers
+ * TOP NAVIGATION — Main Menu Bar
  * ============================================ */
+
+#navigation {
+  background: rgba(0, 0, 0, 0.15) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove any default Bartik nav wrapper styling */
+.region-navigation,
+#block-system-main-menu {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#main-menu-links {
+  margin: 0;
+  padding: 0 20px;
+  list-style: none;
+}
+
+#main-menu-links li {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+#main-menu-links li a,
+#main-menu-links li a:link,
+#main-menu-links li a:visited {
+  color: rgba(255, 255, 255, 0.9) !important;
+  padding: 14px 22px !important;
+  display: inline-block !important;
+  text-decoration: none !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  background: none !important;
+}
+
+#main-menu-links li a:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+#main-menu-links li a.active,
+#main-menu-links li a.active-trail {
+  color: #fff !important;
+  border-bottom-color: #fff;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+
+/* ============================================
+ * PAGE LAYOUT
+ * ============================================ */
+
+#page {
+  background: #f4f6f9 !important;
+  min-height: 100vh;
+}
+
+#main-wrapper {
+  background: #f4f6f9 !important;
+}
+
+#main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 25px 20px;
+}
+
+#content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.region-content {
+  padding: 0 !important;
+}
+
+
+/* ============================================
+ * SIDEBAR
+ * ============================================ */
+
+.region-sidebar-first {
+  padding: 0 15px 0 0 !important;
+}
+
+.region-sidebar-first .block {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  padding: 18px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.region-sidebar-first .block h2 {
+  font-size: 15px;
+  color: #2c3e50;
+  margin: 0 0 12px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+
+/* ============================================
+ * STATS BAR — Always 4 Columns
+ * ============================================ */
+
+.medremind-stats-bar {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #ccc;
+  min-width: 0;
+}
+
+.stat-total  { border-left-color: #667eea; }
+.stat-taken  { border-left-color: #27ae60; }
+.stat-missed { border-left-color: #e74c3c; }
+.stat-streak { border-left-color: #f39c12; }
+
+.stat-number {
+  font-size: 30px;
+  font-weight: 800;
+  color: #2c3e50;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #999;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+
+/* ============================================
+ * DASHBOARD
+ * ============================================ */
+
+.dashboard-actions {
+  margin-bottom: 20px;
+  text-align: right;
+}
 
 .medremind-section {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 25px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   margin-bottom: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .medremind-section h3 {
   color: #2c3e50;
   font-size: 18px;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #f0f0f0;  /* Subtle line under heading */
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-date {
+  float: right;
+  font-size: 13px;
+  color: #aaa;
+  font-weight: normal;
 }
 
 
 /* ============================================
- * Medication Card
+ * MEDICATION CARD
  * ============================================ */
 
 .med-card {
-  display: flex;                    /* Arrange items in a row */
+  display: flex;
   align-items: center;
   padding: 18px;
   margin-bottom: 12px;
   background: #fafbfc;
   border-radius: 10px;
   border: 1px solid #eee;
-  flex-wrap: wrap;                  /* Wrap on small screens */
-  transition: box-shadow 0.2s;
+  flex-wrap: wrap;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .med-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);  /* Lift effect */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 .med-card-info {
   display: flex;
   align-items: center;
-  flex: 1;                         /* Take up remaining space */
+  flex: 1;
   min-width: 200px;
 }
 
 .med-card-icon {
-  font-size: 36px;
-  margin-right: 15px;
+  font-size: 30px;
+  margin-right: 14px;
+  width: 40px;
+  text-align: center;
+}
+
+.med-card-details {
+  flex: 1;
 }
 
 .med-name {
   font-size: 16px;
   color: #2c3e50;
-  margin: 0 0 4px 0;
+  margin: 0 0 3px 0;
+  font-weight: 600;
 }
 
 .med-dosage {
@@ -205,32 +370,56 @@ ul.tabs.primary li a:hover {
   margin: 4px 0 0 0;
 }
 
+/* Taken state */
+.med-card-taken {
+  background: #f0faf0 !important;
+  border-color: #c8e6c9 !important;
+  opacity: 0.85;
+}
+
+.med-card-taken .med-name {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.med-taken-badge {
+  display: inline-block;
+  background: #e8f5e9;
+  color: #27ae60;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
 
 /* ============================================
- * Next Dose Time
+ * NEXT DOSE TIME
  * ============================================ */
 
 .med-card-time {
   text-align: center;
   padding: 0 20px;
-  min-width: 100px;
+  min-width: 120px;
 }
 
 .next-dose-label {
-  font-size: 11px;
-  color: #999;
+  font-size: 10px;
+  color: #bbb;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .next-dose-time {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: bold;
   color: #667eea;
+  margin-top: 2px;
 }
 
 
 /* ============================================
- * Take / Skip Buttons
+ * TAKE / SKIP BUTTONS
  * ============================================ */
 
 .med-card-actions {
@@ -243,10 +432,11 @@ ul.tabs.primary li a:hover {
   padding: 8px 18px;
   border-radius: 6px;
   text-decoration: none !important;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
 }
 
 .med-btn:hover {
@@ -254,7 +444,7 @@ ul.tabs.primary li a:hover {
 }
 
 .med-btn-take {
-  background: #27ae60 !important;   /* Green */
+  background: #27ae60 !important;
   color: #fff !important;
 }
 
@@ -263,7 +453,7 @@ ul.tabs.primary li a:hover {
 }
 
 .med-btn-skip {
-  background: #95a5a6 !important;   /* Gray */
+  background: #95a5a6 !important;
   color: #fff !important;
 }
 
@@ -273,11 +463,11 @@ ul.tabs.primary li a:hover {
 
 
 /* ============================================
- * Streak Badge
+ * STREAK BADGE & MANAGE LINKS
  * ============================================ */
 
 .med-card-streak {
-  background: #fff3e0;             /* Light orange background */
+  background: #fff3e0;
   color: #e67e22;
   padding: 4px 12px;
   border-radius: 20px;
@@ -286,36 +476,52 @@ ul.tabs.primary li a:hover {
   margin-left: 10px;
 }
 
-
-/* ============================================
- * Edit / Delete Links
- * ============================================ */
-
 .med-card-manage {
   width: 100%;
   text-align: right;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px dashed #eee;     /* Dashed separator */
+  border-top: 1px dashed #eee;
   font-size: 12px;
 }
 
-.med-link-edit {
-  color: #667eea !important;
+.med-link-edit { color: #667eea !important; text-decoration: none !important; }
+.med-link-delete { color: #e74c3c !important; text-decoration: none !important; }
+.med-link-edit:hover { text-decoration: underline !important; }
+.med-link-delete:hover { text-decoration: underline !important; }
+
+
+/* ============================================
+ * ADD MEDICATION BUTTON
+ * ============================================ */
+
+.medremind-add-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: #fff !important;
+  padding: 12px 28px;
+  border-radius: 8px;
+  text-decoration: none !important;
+  font-weight: bold;
+  font-size: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-.med-link-delete {
-  color: #e74c3c !important;
+.medremind-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  color: #fff !important;
 }
 
 
 /* ============================================
- * Empty State (no medications)
+ * EMPTY STATE
  * ============================================ */
 
 .medremind-empty {
   text-align: center;
-  padding: 40px 20px;
+  padding: 50px 20px;
   color: #999;
 }
 
@@ -332,32 +538,207 @@ ul.tabs.primary li a:hover {
 
 
 /* ============================================
- * History Page
+ * FORMS — Add/Edit Medication & Settings
+ * ============================================ */
+
+/* Constrain form width */
+.page-medremind-add .region-content,
+.page-medremind-edit .region-content,
+.page-medremind-settings .region-content {
+  max-width: 750px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* Form labels */
+.form-item label {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Text inputs, selects, textareas */
+.form-text,
+.form-select,
+.form-textarea {
+  border: 2px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  background: #fff !important;
+}
+
+/* Focus state */
+.form-text:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: #667eea !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15) !important;
+}
+
+/* Description text */
+.form-item .description {
+  color: #aaa;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Required asterisk */
+.form-required {
+  color: #e74c3c;
+}
+
+/* Fieldset */
+fieldset {
+  border: 2px solid #eaeaea !important;
+  border-radius: 10px !important;
+  padding: 20px 20px 15px !important;
+  margin: 20px 0 !important;
+  background: #fafbfc;
+}
+
+fieldset legend {
+  color: #667eea;
+  font-weight: bold;
+  font-size: 15px;
+  padding: 0 10px;
+}
+
+/* Fieldset description */
+fieldset .fieldset-description {
+  color: #999;
+  font-size: 13px;
+  font-style: italic;
+  margin-bottom: 15px;
+}
+
+/* Submit button */
+.medremind-submit-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: #fff !important;
+  border: none !important;
+  padding: 12px 35px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  margin-top: 10px;
+}
+
+.medremind-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Cancel link */
+.medremind-cancel-btn {
+  color: #999 !important;
+  text-decoration: none !important;
+  margin-left: 15px;
+  font-size: 14px;
+}
+
+.medremind-cancel-btn:hover {
+  color: #e74c3c !important;
+}
+
+/* Checkbox */
+.form-type-checkbox label {
+  font-weight: normal;
+  color: #555;
+  display: inline;
+}
+
+/* Date select dropdowns inline */
+.form-type-date .container-inline .form-select {
+  width: auto !important;
+  display: inline-block !important;
+  margin-right: 5px;
+}
+
+/* Messages */
+.messages.error {
+  background: #fdf0f0;
+  border-left: 4px solid #e74c3c;
+  color: #c0392b;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+}
+
+.messages.status {
+  background: #f0fdf0;
+  border-left: 4px solid #27ae60;
+  color: #1e8449;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+}
+
+.messages.warning {
+  background: #fef9e7;
+  border-left: 4px solid #f39c12;
+  color: #7d6608;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+}
+
+/* Delete confirmation */
+.confirmation {
+  max-width: 600px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.confirmation .description {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+
+/* ============================================
+ * HISTORY PAGE
  * ============================================ */
 
 .medremind-history {
   max-width: 900px;
 }
 
-/* Adherence Circle */
 .adherence-card {
   text-align: center;
   padding: 30px;
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   margin-bottom: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .adherence-circle {
   width: 120px;
   height: 120px;
-  border-radius: 50%;              /* Perfect circle */
+  border-radius: 50%;
   background: linear-gradient(135deg, #667eea, #764ba2);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 15px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .adherence-number {
@@ -378,7 +759,6 @@ ul.tabs.primary li a:hover {
   margin-top: 4px;
 }
 
-/* History List */
 .history-item {
   display: flex;
   align-items: center;
@@ -387,34 +767,31 @@ ul.tabs.primary li a:hover {
   border-radius: 8px;
   border-left: 4px solid #ccc;
   background: #fafbfc;
+  transition: background 0.2s;
 }
 
-.history-taken  { border-left-color: #27ae60; }   /* Green */
-.history-missed { border-left-color: #e74c3c; }   /* Red */
-.history-skipped { border-left-color: #f39c12; }  /* Orange */
-
-.history-icon {
-  font-size: 20px;
-  margin-right: 15px;
+.history-item:hover {
+  background: #f0f2f5;
 }
 
-.history-details {
-  flex: 1;
-}
+.history-taken  { border-left-color: #27ae60; }
+.history-missed { border-left-color: #e74c3c; }
+.history-skipped { border-left-color: #f39c12; }
 
-.history-details strong {
-  color: #333;
-}
+.history-icon { font-size: 20px; margin-right: 15px; }
+.history-details { flex: 1; }
+.history-details strong { color: #333; }
 
 .history-action {
   display: inline-block;
   margin-left: 10px;
-  font-size: 12px;
+  font-size: 11px;
   padding: 2px 8px;
   border-radius: 10px;
   text-transform: uppercase;
   background: #eee;
   color: #666;
+  font-weight: 600;
 }
 
 .history-time {
@@ -424,16 +801,193 @@ ul.tabs.primary li a:hover {
 
 
 /* ============================================
- * Responsive — Mobile Friendly
+ * SIDEBAR BLOCKS
  * ============================================ */
 
-@media (max-width: 768px) {
-  /* Stack stats vertically on mobile */
+/* Next Dose Block */
+.medremind-block-list {
+  padding: 5px 0;
+}
+
+.block-dose-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+  transition: background 0.2s;
+}
+
+.block-dose-item:hover {
+  background: #eef0ff;
+}
+
+.block-dose-urgent {
+  border-left-color: #e74c3c !important;
+  background: #fff5f5 !important;
+  animation: pulse-urgent 2s infinite;
+}
+
+@keyframes pulse-urgent {
+  0%   { background: #fff5f5; }
+  50%  { background: #ffe0e0; }
+  100% { background: #fff5f5; }
+}
+
+.block-dose-time {
+  font-size: 13px;
+  font-weight: bold;
+  color: #667eea;
+  min-width: 65px;
+  text-align: center;
+}
+
+.block-dose-urgent .block-dose-time {
+  color: #e74c3c;
+}
+
+.block-dose-info {
+  flex: 1;
+  padding-left: 8px;
+}
+
+.block-dose-info strong {
+  display: block;
+  font-size: 13px;
+  color: #333;
+}
+
+.block-dose-dosage {
+  display: block;
+  font-size: 11px;
+  color: #999;
+}
+
+.block-dose-countdown {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.medremind-block-empty {
+  text-align: center;
+  padding: 15px 10px;
+  color: #999;
+}
+
+.block-done-icon {
+  font-size: 30px;
+  margin-bottom: 5px;
+}
+
+.block-mini-stat {
+  font-size: 12px;
+  color: #667eea;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.block-dashboard-link {
+  text-align: center;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+}
+
+.block-link {
+  color: #667eea !important;
+  font-size: 13px;
+  text-decoration: none !important;
+}
+
+.block-link:hover {
+  text-decoration: underline !important;
+}
+
+/* Quick Stats Block */
+.medremind-block-stats {
+  padding: 10px 0;
+  text-align: center;
+}
+
+.block-progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #e8e8e8;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.block-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+.block-progress-text {
+  font-size: 12px;
+  color: #666;
+  margin: 5px 0;
+}
+
+.block-streak {
+  font-size: 13px;
+  color: #e67e22;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+
+/* ============================================
+ * AJAX MESSAGES
+ * ============================================ */
+
+.medremind-ajax-message {
+  border-radius: 8px;
+  margin-bottom: 15px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ============================================
+ * CUSTOM FOOTER
+ * ============================================ */
+
+#footer-wrapper {
+  background: #2c3e50 !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  text-align: center;
+  padding: 20px !important;
+  font-size: 13px;
+}
+
+
+/* ============================================
+ * RESPONSIVE — Mobile Friendly
+ * ============================================ */
+
+@media (max-width: 900px) {
   .medremind-stats-bar {
-    flex-direction: column;
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .medremind-stats-bar {
+    grid-template-columns: 1fr !important;
   }
 
-  /* Stack card content vertically */
   .med-card {
     flex-direction: column;
     text-align: center;
@@ -454,200 +1008,14 @@ ul.tabs.primary li a:hover {
     padding: 0;
   }
 
+  .med-card-actions {
+    justify-content: center;
+  }
+
   .med-card-manage {
     text-align: center;
   }
-}
-/* ============================================
- * Forms Styling
- * ============================================ */
 
-/* Form wrapper */
-.page-medremind-add #content,
-.page-medremind-edit #content,
-.page-medremind-settings #content {
-  max-width: 750px;
-}
-
-/* All form labels */
-.form-item label {
-  color: #2c3e50;
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-/* Text inputs and selects */
-.form-text,
-.form-select,
-.form-textarea {
-  border: 2px solid #e0e0e0 !important;
-  border-radius: 6px !important;
-  padding: 10px 12px !important;
-  font-size: 14px !important;
-  transition: border-color 0.2s;
-  width: 100%;
-}
-
-/* Input focus state (when clicked) */
-.form-text:focus,
-.form-select:focus,
-.form-textarea:focus {
-  border-color: #667eea !important;
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15) !important;
-}
-
-/* Description text below fields */
-.form-item .description {
-  color: #999;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-/* Required asterisk */
-.form-required {
-  color: #e74c3c;
-}
-
-/* Fieldset (grouped fields) */
-fieldset {
-  border: 2px solid #e8e8e8 !important;
-  border-radius: 8px !important;
-  padding: 20px !important;
-  margin-bottom: 20px;
-}
-
-fieldset legend {
-  color: #667eea;
-  font-weight: bold;
-  font-size: 15px;
-  padding: 0 10px;
-}
-
-/* Submit Button */
-.medremind-submit-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2) !important;
-  color: #fff !important;
-  border: none !important;
-  padding: 12px 35px !important;
-  border-radius: 8px !important;
-  font-size: 16px !important;
-  font-weight: bold !important;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.medremind-submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-/* Cancel Link */
-.medremind-cancel-btn {
-  color: #999 !important;
-  text-decoration: none !important;
-  margin-left: 15px;
-  font-size: 14px;
-}
-
-.medremind-cancel-btn:hover {
-  color: #e74c3c !important;
-}
-
-/* Checkbox styling */
-.form-type-checkbox label {
-  font-weight: normal;
-  color: #555;
-}
-
-/* Date select dropdowns */
-.form-type-date .container-inline .form-select {
-  width: auto !important;
-  display: inline-block !important;
-  margin-right: 5px;
-}
-
-/* Error messages */
-.messages.error {
-  background: #fdf0f0;
-  border-left: 4px solid #e74c3c;
-  color: #c0392b;
-  border-radius: 6px;
-  padding: 15px;
-}
-
-/* Success messages */
-.messages.status {
-  background: #f0fdf0;
-  border-left: 4px solid #27ae60;
-  color: #1e8449;
-  border-radius: 6px;
-  padding: 15px;
-}
-
-/* Delete confirmation page */
-.confirmation {
-  max-width: 600px;
-  background: #fff;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.confirmation .description {
-  color: #e74c3c;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-/* ============================================
- * Dashboard Actions Bar
- * ============================================ */
-
-.dashboard-actions {
-  margin-bottom: 20px;
-  text-align: right;
-}
-
-/* Section date in header */
-.section-date {
-  float: right;
-  font-size: 13px;
-  color: #999;
-  font-weight: normal;
-}
-
-/* ============================================
- * Medication Card — Taken State
- * When dose is already taken today
- * ============================================ */
-
-.med-card-taken {
-  background: #f0faf0 !important;          /* Light green background */
-  border-color: #c8e6c9 !important;        /* Green border */
-  opacity: 0.85;                           /* Slightly faded */
-}
-
-.med-card-taken .med-name {
-  text-decoration: line-through;           /* Strikethrough on name */
-  color: #999;
-}
-
-.med-taken-badge {
-  display: inline-block;
-  background: #e8f5e9;
-  color: #27ae60;
-  padding: 8px 18px;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-/* ============================================
- * Dashboard Responsive Tweaks
- * ============================================ */
-
-@media (max-width: 768px) {
   .section-date {
     float: none;
     display: block;
@@ -657,4 +1025,76 @@ fieldset legend {
   .dashboard-actions {
     text-align: center;
   }
+
+  #name-and-slogan {
+    padding: 12px 15px !important;
+  }
+
+  #header .region-header {
+    padding: 12px 15px;
+  }
+
+  #main-menu-links li a {
+    padding: 12px 14px !important;
+    font-size: 13px !important;
+  }
+
+  .page-medremind-add .region-content,
+  .page-medremind-edit .region-content,
+  .page-medremind-settings .region-content {
+    padding: 20px 15px;
+  }
+}
+
+
+/* ============================================
+ * ADMIN SETTINGS PAGE
+ * ============================================ */
+
+.medremind-admin-stats {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.admin-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-stat-row:last-child {
+  border-bottom: none;
+}
+
+.admin-stat-label {
+  color: #555;
+  font-size: 14px;
+}
+
+.admin-stat-value {
+  font-weight: bold;
+  font-size: 16px;
+  color: #667eea;
+}
+
+.page-admin fieldset {
+  background: #fff !important;
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 8px !important;
+  margin-bottom: 20px !important;
+  padding: 20px !important;
+}
+
+.page-admin fieldset legend {
+  font-size: 16px;
+  color: #2c3e50;
+  font-weight: bold;
+}
+
+.page-admin fieldset .fieldset-description {
+  color: #999;
+  font-size: 13px;
+  margin-bottom: 15px;
 }
