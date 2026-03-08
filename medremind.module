@@ -316,3 +316,85 @@ function medremind_medication_access($med_id) {
     array(':mid' => $med_id))->fetchField();
   return ($owner == $user->uid);
 }
+/**
+ * Implements hook_entity_info().
+ *
+ * This tells Drupal about our custom Prescription entity.
+ * Entity API module reads this and provides:
+ *   - entity_load(), entity_save(), entity_delete()
+ *   - Admin UI pages
+ *   - Views integration
+ *   - Fieldable support (attach fields via UI)
+ */
+function medremind_entity_info() {
+  $info = array();
+
+  $info['medremind_prescription'] = array(
+    // Basic info
+    'label' => t('Prescription'),
+    'plural label' => t('Prescriptions'),
+    'description' => t('Prescription records linked to medications.'),
+
+    // Entity class and controller
+    'entity class' => 'MedRemindPrescription',
+    'controller class' => 'MedRemindPrescriptionController',
+
+    // Database table
+    'base table' => 'medremind_prescriptions',
+
+    // Fieldable — allows attaching fields via UI
+    'fieldable' => TRUE,
+
+    // Keys — tells Drupal which columns are special
+    'entity keys' => array(
+      'id' => 'prescription_id',
+      'label' => 'prescription_number',
+    ),
+
+    // Bundle — we only have one type
+    'bundles' => array(
+      'medremind_prescription' => array(
+        'label' => t('Prescription'),
+        'admin' => array(
+          'path' => 'admin/structure/medremind-prescriptions',
+          'access arguments' => array('administer medremind'),
+        ),
+      ),
+    ),
+
+    // Admin UI — Entity API generates admin pages
+    'admin ui' => array(
+      'path' => 'medremind/prescription',
+      'controller class' => 'MedRemindPrescriptionUIController',
+      'file' => 'includes/medremind.prescription.pages.inc',
+    ),
+
+    // Access callback
+    'access callback' => 'medremind_prescription_access',
+
+    // Module
+    'module' => 'medremind',
+  );
+
+  return $info;
+}
+
+
+/**
+ * Access callback for prescription entity.
+ */
+function medremind_prescription_access($op, $entity = NULL, $account = NULL) {
+  if (user_access('administer medremind', $account)) {
+    return TRUE;
+  }
+  if (user_access('use medremind', $account)) {
+    if ($op == 'create') return TRUE;
+    if ($entity && isset($entity->uid)) {
+      global $user;
+      $check_account = $account ? $account : $user;
+      return ($entity->uid == $check_account->uid);
+    }
+    return TRUE;
+  }
+  return FALSE;
+}

@@ -1654,3 +1654,145 @@ fieldset .fieldset-description {
     margin-left: 0;
   }
 }
+/* ============================================
+   PRESCRIPTIONS (Entity)
+   ============================================ */
+
+.medremind-prescription-list {
+  display: grid;
+  gap: 15px;
+}
+
+.medremind-rx-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid #667eea;
+}
+
+.medremind-rx-card.rx-expired {
+  border-left-color: #e74c3c;
+  opacity: 0.8;
+}
+
+.medremind-rx-card.rx-no-refills {
+  border-left-color: #f39c12;
+}
+
+.rx-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.rx-number {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.rx-status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rx-status-badge.rx-active {
+  background: #e8f5e9;
+  color: #27ae60;
+}
+
+.rx-status-badge.rx-expired {
+  background: #fde8e8;
+  color: #e74c3c;
+}
+
+.rx-status-badge.rx-no-refills {
+  background: #fff3e0;
+  color: #f39c12;
+}
+
+.rx-card-body {
+  margin-bottom: 15px;
+}
+
+.rx-detail {
+  padding: 6px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.rx-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.rx-expired-text {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.rx-notes {
+  font-style: italic;
+  color: #888;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #eee;
+}
+
+.rx-refill-bar-bg {
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.rx-refill-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.rx-card-actions {
+  text-align: right;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.rx-link-edit {
+  color: #667eea !important;
+  text-decoration: none !important;
+}
+
+.rx-link-delete {
+  color: #e74c3c !important;
+  text-decoration: none !important;
+}
+
+.rx-link-edit:hover,
+.rx-link-delete:hover {
+  text-decoration: underline !important;
+}
+```
+
+---
+
+## Step 8: Install
+```
+1. Admin → Modules → Disable MedRemind → Save
+2. Admin → Modules → Uninstall MedRemind → Uninstall
+3. Admin → Modules → Enable "Entity API" first
+4. Admin → Modules → Enable "MedRemind" → Save
+5. Clear cache
+6. Add "Prescriptions" to Main menu:
+   Admin → Structure → Menus → Main menu → Add link
+   Title: Prescriptions
+   Path: medremind/prescriptions
+   Weight: 7
