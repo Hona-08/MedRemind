@@ -17,20 +17,23 @@ define('MEDREMIND_ACTION_SKIPPED', 'skipped');
 function medremind_menu() {
   $items = array();
 
-  // Dashboard
+  // Base route — this is the PARENT
   $items['medremind'] = array(
     'title' => 'My Medications',
     'page callback' => 'medremind_dashboard_page',
     'access arguments' => array('use medremind'),
     'file' => 'includes/medremind.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
   );
+
+  // Default tab — Dashboard
   $items['medremind/dashboard'] = array(
     'title' => 'Dashboard',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 0,
   );
 
-  // Add Medication
+  // Tab: Add Medication
   $items['medremind/add'] = array(
     'title' => 'Add Medication',
     'page callback' => 'drupal_get_form',
@@ -41,7 +44,7 @@ function medremind_menu() {
     'weight' => 1,
   );
 
-  // History
+  // Tab: History
   $items['medremind/history'] = array(
     'title' => 'History',
     'page callback' => 'medremind_history_page',
@@ -51,7 +54,7 @@ function medremind_menu() {
     'weight' => 2,
   );
 
-  // User Settings
+  // Tab: My Settings
   $items['medremind/settings'] = array(
     'title' => 'My Settings',
     'page callback' => 'drupal_get_form',
@@ -62,7 +65,37 @@ function medremind_menu() {
     'weight' => 3,
   );
 
-  // Edit / Delete
+  // Tab: Reports
+  $items['medremind/reports'] = array(
+    'title' => 'Reports',
+    'page callback' => 'medremind_reports_page',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.reports.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 4,
+  );
+
+  // Tab: Notifications
+  $items['medremind/notifications'] = array(
+    'title' => 'Notifications',
+    'page callback' => 'medremind_notifications_page',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.notifications.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 5,
+  );
+
+  // Tab: Export/Import
+  $items['medremind/export'] = array(
+    'title' => 'Export / Import',
+    'page callback' => 'medremind_export_page',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.export.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 6,
+  );
+
+  // Hidden routes (no tabs) — Edit/Delete/AJAX
   $items['medremind/edit/%'] = array(
     'title' => 'Edit Medication',
     'page callback' => 'drupal_get_form',
@@ -82,7 +115,7 @@ function medremind_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  // AJAX Take/Skip
+  // AJAX endpoints
   $items['medremind/take/%/ajax'] = array(
     'page callback' => 'medremind_take_dose_ajax',
     'page arguments' => array(2),
@@ -100,14 +133,7 @@ function medremind_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  // Notifications (Step 9)
-  $items['medremind/notifications'] = array(
-    'title' => 'Notifications',
-    'page callback' => 'medremind_notifications_page',
-    'access arguments' => array('use medremind'),
-    'file' => 'includes/medremind.notifications.inc',
-    'type' => MENU_NORMAL_ITEM,
-  );
+  // Notification AJAX
   $items['medremind/notifications/read/ajax'] = array(
     'page callback' => 'medremind_notifications_mark_read_ajax',
     'access arguments' => array('use medremind'),
@@ -118,6 +144,32 @@ function medremind_menu() {
     'page callback' => 'medremind_notifications_count_ajax',
     'access arguments' => array('use medremind'),
     'file' => 'includes/medremind.notifications.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  // CSV export endpoints
+  $items['medremind/export/medications/csv'] = array(
+    'page callback' => 'medremind_export_medications_csv',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.export.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['medremind/export/history/csv'] = array(
+    'page callback' => 'medremind_export_history_csv',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.export.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['medremind/export/full/csv'] = array(
+    'page callback' => 'medremind_export_full_csv',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.export.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['medremind/export/template/csv'] = array(
+    'page callback' => 'medremind_export_template_csv',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.export.inc',
     'type' => MENU_CALLBACK,
   );
 

@@ -1247,3 +1247,281 @@ fieldset .fieldset-description {
 .medremind-notif-type-achievement .medremind-notif-title {
   color: #27ae60;
 }
+/* ============================================
+   REPORTS & ANALYTICS
+   ============================================ */
+
+.medremind-reports-page h2 {
+  margin-bottom: 5px;
+}
+
+.medremind-report-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 30px;
+}
+
+.medremind-report-tab {
+  padding: 8px 20px;
+  border-radius: 20px;
+  background: #f0f0f0;
+  color: #555;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.medremind-report-tab.active,
+.medremind-report-tab:hover {
+  background: #667eea;
+  color: #fff;
+}
+
+.medremind-report-section {
+  margin-bottom: 35px;
+}
+
+.medremind-report-section h3 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.medremind-report-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+}
+
+.medremind-report-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.medremind-report-card-big {
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.medremind-adherence-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 6px solid #667eea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.medremind-adherence-number {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.medremind-adherence-label {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.medremind-report-card-number {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.medremind-report-card-title {
+  font-size: 13px;
+  color: #888;
+  font-weight: 600;
+}
+
+.medremind-chart {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+  padding: 15px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+.medremind-chart-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 20px;
+}
+
+.medremind-chart-bar-group.today {
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+}
+
+.medremind-chart-bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 1px;
+}
+
+.medremind-chart-bar {
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+  transition: height 0.3s;
+}
+
+.medremind-chart-bar.taken {
+  background: #27ae60;
+}
+
+.medremind-chart-bar.missed {
+  background: #e74c3c;
+}
+
+.medremind-chart-bar.empty {
+  background: #e8e8e8;
+}
+
+.medremind-chart-label {
+  font-size: 11px;
+  color: #888;
+  margin-top: 5px;
+}
+
+.medremind-chart-sublabel {
+  font-size: 10px;
+  color: #bbb;
+}
+
+.medremind-chart-legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  padding-left: 15px;
+}
+
+.medremind-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #666;
+}
+
+.medremind-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.medremind-legend-color.taken {
+  background: #27ae60;
+}
+
+.medremind-legend-color.missed {
+  background: #e74c3c;
+}
+
+.medremind-breakdown-item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.medremind-breakdown-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.medremind-breakdown-name {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.medremind-breakdown-name small {
+  color: #999;
+  font-weight: 400;
+}
+
+.medremind-breakdown-pct {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.medremind-breakdown-bar-bg {
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.medremind-breakdown-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.medremind-breakdown-detail {
+  font-size: 12px;
+  color: #999;
+  margin-top: 6px;
+}
+
+.medremind-streak-table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.medremind-streak-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 12px 20px;
+  background: #667eea;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.medremind-streak-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.medremind-streak-row:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .medremind-report-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .medremind-report-card-big {
+    grid-column: span 2;
+  }
+  .medremind-streak-header,
+  .medremind-streak-row {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
