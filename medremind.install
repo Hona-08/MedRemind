@@ -135,13 +135,22 @@ function medremind_install() {
 
 function medremind_uninstall() {
   $vars = array(
-    'medremind_site_name', 'medremind_reminder_enabled', 'medremind_max_medications',
-    'medremind_allow_registration', 'medremind_default_reminder_time',
-    'medremind_daily_summary_enabled', 'medremind_daily_summary_time',
-    'medremind_streak_enabled', 'medremind_missed_dose_hours',
-    'medremind_log_retention_days', 'medremind_last_summary_date',
+    'medremind_site_name',
+    'medremind_reminder_enabled',
+    'medremind_max_medications',
+    'medremind_allow_registration',
+    'medremind_default_reminder_time',
+    'medremind_daily_summary_enabled',
+    'medremind_daily_summary_time',
+    'medremind_streak_enabled',
+    'medremind_missed_dose_hours',
+    'medremind_log_retention_days',
+    'medremind_last_summary_date',
   );
-  foreach ($vars as $v) { variable_del($v); }
+  foreach ($vars as $v) {
+    variable_del($v);
+  }
+  drupal_set_message(t('MedRemind has been completely uninstalled.'));
 }
 
 /**
