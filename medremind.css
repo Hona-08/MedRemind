@@ -1780,19 +1780,3 @@ fieldset .fieldset-description {
 .rx-link-delete:hover {
   text-decoration: underline !important;
 }
-```
-
----
-
-## Step 8: Install
-```
-1. Admin → Modules → Disable MedRemind → Save
-2. Admin → Modules → Uninstall MedRemind → Uninstall
-3. Admin → Modules → Enable "Entity API" first
-4. Admin → Modules → Enable "MedRemind" → Save
-5. Clear cache
-6. Add "Prescriptions" to Main menu:
-   Admin → Structure → Menus → Main menu → Add link
-   Title: Prescriptions
-   Path: medremind/prescriptions
-   Weight: 7
