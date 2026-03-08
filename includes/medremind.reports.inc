@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Reports and analytics for MedRemind (Step 10).
+ * Reports and analytics for MedRemind.
  *
  * Provides:
  *   - Weekly/Monthly/All-time adherence overview

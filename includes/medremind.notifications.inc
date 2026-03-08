@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Notification system for MedRemind (Step 9).
+ * Notification system for MedRemind.
  */
 
 function medremind_notification_create($uid, $type, $title, $message, $med_id = NULL) {
