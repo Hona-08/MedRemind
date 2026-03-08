@@ -7,8 +7,6 @@
  * Import: Medications from CSV with validation
  * Template: Downloadable sample CSV for import
  */
-
-
 /**
  * Page callback: /medremind/export
  */
@@ -49,7 +47,8 @@ function medremind_export_page() {
   $output .= '<h2 style="margin-top: 40px;">📥 Import Data</h2>';
   $output .= '<p>Import medications from a CSV file. ';
   $output .= '<a href="' . url('medremind/export/template/csv') . '">Download sample template</a>.</p>';
-  $output .= drupal_render(drupal_get_form('medremind_import_form'));
+  $import_form = drupal_get_form('medremind_import_form');
+  $output .= drupal_render($import_form);
   $output .= '</div>';
 
   return $output;

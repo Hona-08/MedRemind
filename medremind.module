@@ -146,8 +146,14 @@ function medremind_menu() {
     'file' => 'includes/medremind.notifications.inc',
     'type' => MENU_CALLBACK,
   );
-
-  // CSV export endpoints
+  // Export/Import
+  $items['medremind/export'] = array(
+    'title' => 'Export / Import',
+    'page callback' => 'medremind_export_page',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.export.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
   $items['medremind/export/medications/csv'] = array(
     'page callback' => 'medremind_export_medications_csv',
     'access arguments' => array('use medremind'),

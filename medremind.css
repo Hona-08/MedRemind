@@ -1525,3 +1525,59 @@ fieldset .fieldset-description {
     padding: 10px 12px;
   }
 }
+/* ============================================
+   EXPORT / IMPORT
+   ============================================ */
+
+.medremind-export-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.medremind-export-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.medremind-export-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.medremind-export-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+}
+
+.medremind-export-card p {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+.medremind-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.medremind-btn-primary {
+  background: #667eea;
+  color: #fff;
+}
+
+.medremind-btn-primary:hover {
+  background: #5a6fd6;
+  color: #fff;
+}
