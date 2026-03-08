@@ -1098,3 +1098,152 @@ fieldset .fieldset-description {
   font-size: 13px;
   margin-bottom: 15px;
 }
+/* NOTIFICATIONS */
+
+.medremind-notif-bell-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.medremind-notif-bell {
+  font-size: 24px;
+  text-decoration: none;
+  position: relative;
+  cursor: pointer;
+}
+
+.medremind-notif-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: #e74c3c;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+  min-width: 18px;
+  text-align: center;
+}
+
+.medremind-notif-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.medremind-notif-bell-wrapper:hover .medremind-notif-dropdown {
+  display: block;
+}
+
+.medremind-notif-dropdown-item {
+  display: flex;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.medremind-notif-dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.medremind-notif-dropdown-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.medremind-notif-dropdown-text {
+  flex: 1;
+}
+
+.medremind-notif-dropdown-text strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.medremind-notif-dropdown-text small {
+  color: #999;
+  font-size: 11px;
+}
+
+.medremind-notif-empty {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+}
+
+.medremind-notif-view-all {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  background: #f8f9fa;
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.medremind-notif-view-all:hover {
+  background: #667eea;
+  color: #fff;
+}
+
+.medremind-notification-item {
+  display: flex;
+  gap: 15px;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  align-items: flex-start;
+}
+
+.medremind-notif-unread {
+  border-left: 4px solid #667eea;
+  background: #f8f9ff;
+}
+
+.medremind-notif-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.medremind-notif-title {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.medremind-notif-message {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.medremind-notif-time {
+  color: #999;
+  font-size: 12px;
+}
+
+.medremind-notif-type-missed .medremind-notif-title {
+  color: #e74c3c;
+}
+
+.medremind-notif-type-streak .medremind-notif-title {
+  color: #f39c12;
+}
+
+.medremind-notif-type-achievement .medremind-notif-title {
+  color: #27ae60;
+}

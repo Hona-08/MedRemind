@@ -1,28 +1,15 @@
 <?php
-
 /**
  * @file
- * Main module file for MedRemind.
- * Contains all Drupal hooks — these MUST be in .module file.
- * Keeps hooks slim by calling helpers from .inc files.
+ * MedRemind — Medication Reminder SaaS for Drupal 7.
  */
-
-// ============================================
-// CONSTANTS
-// Define once, use everywhere
-// ============================================
 
 define('MEDREMIND_STATUS_ACTIVE', 1);
 define('MEDREMIND_STATUS_PAUSED', 0);
 define('MEDREMIND_ACTION_TAKEN', 'taken');
 define('MEDREMIND_ACTION_MISSED', 'missed');
 define('MEDREMIND_ACTION_SKIPPED', 'skipped');
-define('MEDREMIND_DEFAULT_REMINDER', 15);
 
-
-// ============================================
-// HOOK_MENU — Define all URL routes
-// ============================================
 
 /**
  * Implements hook_menu().
@@ -30,38 +17,20 @@ define('MEDREMIND_DEFAULT_REMINDER', 15);
 function medremind_menu() {
   $items = array();
 
-  // Merge all route groups
-  $items += _medremind_user_routes();
-  $items += _medremind_ajax_routes();
-  $items += _medremind_admin_routes();
-
-  return $items;
-}
-
-/**
- * User-facing routes.
- */
-function _medremind_user_routes() {
-  $items = array();
-
-  // Dashboard — /medremind
+  // Dashboard
   $items['medremind'] = array(
     'title' => 'My Medications',
     'page callback' => 'medremind_dashboard_page',
     'access arguments' => array('use medremind'),
     'file' => 'includes/medremind.pages.inc',
-    'type' => MENU_NORMAL_ITEM,
-    'menu_name' => 'navigation',
   );
-
-  // Dashboard tab (default)
   $items['medremind/dashboard'] = array(
     'title' => 'Dashboard',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 0,
   );
 
-  // Add Medication tab — /medremind/add
+  // Add Medication
   $items['medremind/add'] = array(
     'title' => 'Add Medication',
     'page callback' => 'drupal_get_form',
@@ -72,7 +41,7 @@ function _medremind_user_routes() {
     'weight' => 1,
   );
 
-  // History tab — /medremind/history
+  // History
   $items['medremind/history'] = array(
     'title' => 'History',
     'page callback' => 'medremind_history_page',
@@ -82,7 +51,7 @@ function _medremind_user_routes() {
     'weight' => 2,
   );
 
-  // Settings tab — /medremind/settings
+  // User Settings
   $items['medremind/settings'] = array(
     'title' => 'My Settings',
     'page callback' => 'drupal_get_form',
@@ -93,7 +62,7 @@ function _medremind_user_routes() {
     'weight' => 3,
   );
 
-  // Edit Medication — /medremind/edit/%
+  // Edit / Delete
   $items['medremind/edit/%'] = array(
     'title' => 'Edit Medication',
     'page callback' => 'drupal_get_form',
@@ -103,8 +72,6 @@ function _medremind_user_routes() {
     'file' => 'includes/medremind.forms.inc',
     'type' => MENU_CALLBACK,
   );
-
-  // Delete Medication — /medremind/delete/%
   $items['medremind/delete/%'] = array(
     'title' => 'Delete Medication',
     'page callback' => 'drupal_get_form',
@@ -115,17 +82,8 @@ function _medremind_user_routes() {
     'type' => MENU_CALLBACK,
   );
 
-  return $items;
-}
-
-/**
- * AJAX routes for Take/Skip actions.
- */
-function _medremind_ajax_routes() {
-  $items = array();
-
+  // AJAX Take/Skip
   $items['medremind/take/%/ajax'] = array(
-    'title' => 'Take Dose',
     'page callback' => 'medremind_take_dose_ajax',
     'page arguments' => array(2),
     'access callback' => 'medremind_medication_access',
@@ -133,9 +91,7 @@ function _medremind_ajax_routes() {
     'file' => 'includes/medremind.ajax.inc',
     'type' => MENU_CALLBACK,
   );
-
   $items['medremind/skip/%/ajax'] = array(
-    'title' => 'Skip Dose',
     'page callback' => 'medremind_skip_dose_ajax',
     'page arguments' => array(2),
     'access callback' => 'medremind_medication_access',
@@ -144,137 +100,134 @@ function _medremind_ajax_routes() {
     'type' => MENU_CALLBACK,
   );
 
-  return $items;
-}
+  // Notifications (Step 9)
+  $items['medremind/notifications'] = array(
+    'title' => 'Notifications',
+    'page callback' => 'medremind_notifications_page',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.notifications.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['medremind/notifications/read/ajax'] = array(
+    'page callback' => 'medremind_notifications_mark_read_ajax',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.notifications.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['medremind/notifications/count/ajax'] = array(
+    'page callback' => 'medremind_notifications_count_ajax',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.notifications.inc',
+    'type' => MENU_CALLBACK,
+  );
 
-/**
- * Admin routes.
- */
-function _medremind_admin_routes() {
-  $items = array();
-
+  // Admin Settings
   $items['admin/config/medremind'] = array(
     'title' => 'MedRemind Settings',
-    'description' => 'Configure MedRemind medication reminder settings.',
+    'description' => 'Configure MedRemind settings.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('medremind_admin_settings_form'),
     'access arguments' => array('administer medremind'),
     'file' => 'includes/medremind.admin.inc',
-    'type' => MENU_NORMAL_ITEM,
   );
 
   return $items;
 }
 
-
-// ============================================
-// HOOK_PERMISSION — Define access permissions
-// ============================================
 
 /**
  * Implements hook_permission().
  */
 function medremind_permission() {
   return array(
-    'administer medremind' => array(
-      'title' => t('Administer MedRemind'),
-      'description' => t('Access MedRemind admin settings.'),
-    ),
-    'use medremind' => array(
-      'title' => t('Use MedRemind'),
-      'description' => t('Access MedRemind to manage medications.'),
-    ),
+    'administer medremind' => array('title' => t('Administer MedRemind')),
+    'use medremind' => array('title' => t('Use MedRemind')),
   );
 }
 
-
-// ============================================
-// HOOK_THEME — Register templates
-// ============================================
 
 /**
  * Implements hook_theme().
  */
 function medremind_theme() {
   $path = drupal_get_path('module', 'medremind') . '/templates';
-
   return array(
     'medremind_dashboard' => array(
-      'template' => 'medremind-dashboard',
-      'path' => $path,
-      'variables' => array(
-        'medications' => array(),
-        'stats' => array(),
-        'user_name' => '',
-      ),
+      'template' => 'medremind-dashboard', 'path' => $path,
+      'variables' => array('medications' => array(), 'stats' => array(), 'user_name' => ''),
     ),
     'medremind_med_card' => array(
-      'template' => 'medremind-med-card',
-      'path' => $path,
-      'variables' => array(
-        'medication' => NULL,
-        'next_dose' => '',
-        'streak' => 0,
-      ),
+      'template' => 'medremind-med-card', 'path' => $path,
+      'variables' => array('medication' => NULL, 'next_dose' => '', 'streak' => 0),
     ),
     'medremind_history' => array(
-      'template' => 'medremind-history',
-      'path' => $path,
-      'variables' => array(
-        'logs' => array(),
-        'month' => '',
-        'adherence' => 0,
-      ),
+      'template' => 'medremind-history', 'path' => $path,
+      'variables' => array('logs' => array(), 'month' => '', 'adherence' => 0),
     ),
   );
 }
 
 
-// ============================================
-// HOOK_HELP — Module help page
-// ============================================
-
 /**
  * Implements hook_help().
  */
 function medremind_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#medremind':
-      return '<p>' . t('MedRemind is a medication reminder SaaS application. Users can add medications, set dose schedules, track adherence, and receive reminders.') . '</p>';
+  if ($path == 'admin/help#medremind') {
+    return '<p>' . t('MedRemind helps users track medications and receive reminders.') . '</p>';
   }
 }
 
-
-// ============================================
-// HOOK_CRON — Background tasks
-// ============================================
 
 /**
  * Implements hook_cron().
  */
 function medremind_cron() {
   module_load_include('inc', 'medremind', 'includes/medremind.cron');
-  _medremind_process_reminders();
+  _medremind_run_cron_tasks();
 }
 
 
-// ============================================
-// HOOK_BLOCK — Sidebar widgets
-// ============================================
+/**
+ * Implements hook_mail().
+ */
+function medremind_mail($key, &$message, $params) {
+  $site = variable_get('medremind_site_name', 'MedRemind');
+  $name = format_username($params['account']);
+  $url = url('medremind', array('absolute' => TRUE));
+
+  if ($key == 'dose_reminder') {
+    $message['subject'] = t('[@site] Time to take @med', array(
+      '@site' => $site, '@med' => $params['med_name'],
+    ));
+    $message['body'][] = t("Hello @name,\n\nTime to take your medication:\n  💊 @med — @dosage\n\nLog your dose: @url\n\n— @site", array(
+      '@name' => $name, '@med' => $params['med_name'],
+      '@dosage' => $params['med_dosage'], '@url' => $url, '@site' => $site,
+    ));
+  }
+
+  if ($key == 'daily_summary') {
+    $total = $params['taken'] + $params['missed'] + $params['skipped'];
+    $pct = $total > 0 ? round(($params['taken'] / $total) * 100) : 0;
+    $message['subject'] = t('[@site] Daily Summary — @date', array(
+      '@site' => $site, '@date' => $params['date'],
+    ));
+    $message['body'][] = t("Hello @name,\n\nSummary for @date:\n  ✅ Taken: @taken\n  ❌ Missed: @missed\n  ⏭️ Skipped: @skipped\n  📊 Adherence: @pct%\n\nDashboard: @url\n\n— @site", array(
+      '@name' => $name, '@date' => $params['date'], '@taken' => $params['taken'],
+      '@missed' => $params['missed'], '@skipped' => $params['skipped'],
+      '@pct' => $pct, '@url' => $url, '@site' => $site,
+    ));
+  }
+}
+
 
 /**
  * Implements hook_block_info().
  */
 function medremind_block_info() {
   return array(
-    'next_dose' => array(
-      'info' => t('MedRemind: Next Dose'),
-      'cache' => DRUPAL_NO_CACHE,
-    ),
-    'quick_stats' => array(
-      'info' => t('MedRemind: Quick Stats'),
-      'cache' => DRUPAL_NO_CACHE,
-    ),
+    'next_dose' => array('info' => t('MedRemind: Next Dose'), 'cache' => DRUPAL_NO_CACHE),
+    'quick_stats' => array('info' => t('MedRemind: Quick Stats'), 'cache' => DRUPAL_NO_CACHE),
+    'medremind_notifications' => array('info' => t('MedRemind: Notifications'), 'cache' => DRUPAL_NO_CACHE),
   );
 }
 
@@ -283,43 +236,25 @@ function medremind_block_info() {
  */
 function medremind_block_view($delta = '') {
   module_load_include('inc', 'medremind', 'includes/medremind.blocks');
-
-  switch ($delta) {
-    case 'next_dose':
-      return _medremind_block_next_dose();
-
-    case 'quick_stats':
-      return _medremind_block_quick_stats();
+  if ($delta == 'next_dose') return _medremind_block_next_dose();
+  if ($delta == 'quick_stats') return _medremind_block_quick_stats();
+  if ($delta == 'medremind_notifications') {
+    if (user_access('use medremind')) {
+      return array('subject' => '', 'content' => _medremind_block_notifications());
+    }
   }
 }
 
 
-// ============================================
-// ACCESS CALLBACK — Medication ownership check
-// ============================================
-
 /**
- * Check if current user owns the medication.
+ * Access callback: does current user own this medication?
  */
 function medremind_medication_access($med_id) {
   global $user;
-
-  if (!user_access('use medremind')) {
-    return FALSE;
-  }
-
-  if (user_access('administer medremind')) {
-    return TRUE;
-  }
-
-  if (!db_table_exists('medremind_medications')) {
-    return FALSE;
-  }
-
-  $owner = db_query(
-    'SELECT uid FROM {medremind_medications} WHERE med_id = :mid',
-    array(':mid' => $med_id)
-  )->fetchField();
-
+  if (!user_access('use medremind')) return FALSE;
+  if (user_access('administer medremind')) return TRUE;
+  if (!db_table_exists('medremind_medications')) return FALSE;
+  $owner = db_query('SELECT uid FROM {medremind_medications} WHERE med_id = :mid',
+    array(':mid' => $med_id))->fetchField();
   return ($owner == $user->uid);
 }

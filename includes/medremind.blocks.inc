@@ -252,3 +252,59 @@ function _medremind_minutes_until($time_24) {
 
   return round($diff / 60);
 }
+/**
+ * Block content: Notification bell.
+ * Shows unread count badge and dropdown.
+ */
+function _medremind_block_notifications() {
+  global $user;
+
+  module_load_include('inc', 'medremind', 'includes/medremind.notifications');
+
+  $count = medremind_notification_unread_count($user->uid);
+  $notifications = medremind_notification_get($user->uid, 5, TRUE);
+
+  $output = '<div class="medremind-notif-bell-wrapper">';
+
+  // Bell icon with count badge
+  $output .= '<a href="' . url('medremind/notifications') . '" class="medremind-notif-bell" id="medremind-notif-bell">';
+  $output .= '🔔';
+  if ($count > 0) {
+    $output .= '<span class="medremind-notif-badge" id="medremind-notif-badge">' . $count . '</span>';
+  }
+  $output .= '</a>';
+
+  // Dropdown preview (hidden by default, shown on hover/click via CSS)
+  $output .= '<div class="medremind-notif-dropdown" id="medremind-notif-dropdown">';
+
+  if (empty($notifications)) {
+    $output .= '<div class="medremind-notif-empty">No new notifications</div>';
+  }
+  else {
+    foreach ($notifications as $notif) {
+      $type_icons = array(
+        'reminder' => '💊',
+        'missed' => '❌',
+        'streak' => '🔥',
+        'achievement' => '🏆',
+      );
+      $icon = isset($type_icons[$notif->type]) ? $type_icons[$notif->type] : '🔔';
+      $time_ago = format_interval(REQUEST_TIME - $notif->created) . ' ago';
+
+      $output .= '<div class="medremind-notif-dropdown-item">';
+      $output .= '  <span class="medremind-notif-dropdown-icon">' . $icon . '</span>';
+      $output .= '  <div class="medremind-notif-dropdown-text">';
+      $output .= '    <strong>' . check_plain($notif->title) . '</strong>';
+      $output .= '    <small>' . $time_ago . '</small>';
+      $output .= '  </div>';
+      $output .= '</div>';
+    }
+  }
+
+  $output .= '<a href="' . url('medremind/notifications') . '" class="medremind-notif-view-all">View All</a>';
+  $output .= '</div>';
+
+  $output .= '</div>';
+
+  return $output;
+}
