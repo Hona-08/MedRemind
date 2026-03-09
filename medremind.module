@@ -10,12 +10,76 @@ define('MEDREMIND_ACTION_TAKEN', 'taken');
 define('MEDREMIND_ACTION_MISSED', 'missed');
 define('MEDREMIND_ACTION_SKIPPED', 'skipped');
 
+/**
+ * Implements hook_init().
+ * Redirect anonymous users to login page when accessing /medremind.
+ */
+function medremind_init() {
+  global $user;
 
+  // Only redirect anonymous users on medremind pages
+  if ($user->uid == 0) {
+    $path = current_path();
+
+    // Pages that need login
+    $protected = array(
+      'medremind',
+      'medremind/add',
+      'medremind/history',
+      'medremind/settings',
+      'medremind/reports',
+      'medremind/notifications',
+      'medremind/export',
+      'medremind/prescriptions',
+      'medremind/profile',
+    );
+
+    if (in_array($path, $protected)) {
+      drupal_goto('medremind/login', array('query' => array('destination' => $path)));
+    }
+  }
+}
 /**
  * Implements hook_menu().
  */
 function medremind_menu() {
   $items = array();
+// Login (public — no permission needed)
+  $items['medremind/login'] = array(
+    'title' => 'Sign In',
+    'page callback' => 'medremind_login_page',
+    'access callback' => TRUE,
+    'file' => 'includes/medremind.user.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Register (public)
+  $items['medremind/register'] = array(
+    'title' => 'Create Account',
+    'page callback' => 'medremind_register_page',
+    'access callback' => TRUE,
+    'file' => 'includes/medremind.user.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Logout
+  $items['medremind/logout'] = array(
+    'title' => 'Logout',
+    'page callback' => 'medremind_logout_page',
+    'access callback' => 'user_is_logged_in',
+    'file' => 'includes/medremind.user.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Profile
+  $items['medremind/profile'] = array(
+    'title' => 'My Profile',
+    'page callback' => 'medremind_profile_page',
+    'access arguments' => array('use medremind'),
+    'file' => 'includes/medremind.user.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 8,
+  );
 
   // Base route — this is the PARENT
   $items['medremind'] = array(

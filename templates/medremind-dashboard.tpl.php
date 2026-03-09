@@ -1,5 +1,13 @@
-<?php /** @file Dashboard template with navigation bar (Step 12). */ ?>
+<?php  ?>
 <div class="medremind-dashboard">
+  <!-- User Bar -->
+  <div class="medremind-user-bar">
+    <span class="user-greeting">👋 Hello, <strong><?php print check_plain($user_name); ?></strong></span>
+    <div class="user-bar-actions">
+      <a href="<?php print url('medremind/profile'); ?>" class="user-bar-link">👤 Profile</a>
+      <a href="<?php print url('medremind/logout'); ?>" class="user-bar-link user-bar-logout">Logout</a>
+    </div>
+  </div>
 
   <!-- Stats Bar -->
   <div class="medremind-stats-bar">

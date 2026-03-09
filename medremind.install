@@ -311,3 +311,13 @@ function medremind_update_7002() {
   }
   return t('Added medremind_prescriptions table.');
 }
+/**
+ * Grant 'use medremind' to authenticated users.
+ */
+function medremind_update_7003() {
+  $role = user_role_load_by_name('authenticated user');
+  if ($role) {
+    user_role_grant_permissions($role->rid, array('use medremind'));
+  }
+  return t('Granted MedRemind access to authenticated users.');
+}
