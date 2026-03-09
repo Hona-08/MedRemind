@@ -51,9 +51,22 @@ function medremind_history_page() {
   $month_start = strtotime('first day of this month midnight');
 
   if (db_table_exists('medremind_log')) {
+    // COUNT total for pager
+    $total = (int) db_select('medremind_log', 'l')
+      ->condition('l.uid', $user->uid)
+      ->condition('l.scheduled_time', $month_start, '>=')
+      ->countQuery()->execute()->fetchField();
+
+    // PAGER — 10 items per page
+    $per_page = 10;
+    $current_page = pager_default_initialize($total, $per_page);
+
     $result = db_select('medremind_log', 'l')->fields('l')
-      ->condition('l.uid', $user->uid)->condition('l.scheduled_time', $month_start, '>=')
-      ->orderBy('l.action_time', 'DESC')->range(0, 50)->execute();
+      ->condition('l.uid', $user->uid)
+      ->condition('l.scheduled_time', $month_start, '>=')
+      ->orderBy('l.action_time', 'DESC')
+      ->range($current_page * $per_page, $per_page)
+      ->execute();
 
     foreach ($result as $log) {
       $log->med_name = db_query('SELECT name FROM {medremind_medications} WHERE med_id = :m',
@@ -61,15 +74,19 @@ function medremind_history_page() {
       $logs[] = $log;
     }
 
-    $total = (int) db_select('medremind_log', 'l')->condition('l.uid', $user->uid)
-      ->condition('l.scheduled_time', $month_start, '>=')->countQuery()->execute()->fetchField();
-    $taken = (int) db_select('medremind_log', 'l')->condition('l.uid', $user->uid)
-      ->condition('l.action', MEDREMIND_ACTION_TAKEN)->condition('l.scheduled_time', $month_start, '>=')
+    $taken = (int) db_select('medremind_log', 'l')
+      ->condition('l.uid', $user->uid)
+      ->condition('l.action', MEDREMIND_ACTION_TAKEN)
+      ->condition('l.scheduled_time', $month_start, '>=')
       ->countQuery()->execute()->fetchField();
     if ($total > 0) $adherence = round(($taken / $total) * 100);
   }
 
-  return theme('medremind_history', array('logs' => $logs, 'month' => $month, 'adherence' => $adherence));
+  return theme('medremind_history', array(
+    'logs' => $logs,
+    'month' => $month,
+    'adherence' => $adherence,
+  ));
 }
 
 function _medremind_next_dose($med) {

@@ -80,5 +80,11 @@
     <?php endif; ?>
 
   </div>
-
+<?php
+      // Pagination
+      $pager = theme('pager');
+      if ($pager):
+    ?>
+      <div class="medremind-pager"><?php print $pager; ?></div>
+    <?php endif; ?>
 </div>
