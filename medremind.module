@@ -14,38 +14,33 @@ define('MEDREMIND_ACTION_SKIPPED', 'skipped');
 if (!defined('MEDREMIND_SEND_EMAILS')) {
   define('MEDREMIND_SEND_EMAILS', FALSE);
 }
-/**
- * Implements hook_init().
- */
 function medremind_init() {
   global $user;
 
-  // One-time fix: grant permission to authenticated users
-  $fixed = variable_get('medremind_permission_fixed', FALSE);
-  if (!$fixed) {
+  // Grant permission on every page load if not set
+  if ($user->uid > 0) {
     $role = user_role_load_by_name('authenticated user');
     if ($role) {
-      user_role_grant_permissions($role->rid, array('use medremind'));
+      $has = db_select('role_permission', 'rp')
+        ->condition('rid', $role->rid)
+        ->condition('permission', 'use medremind')
+        ->countQuery()->execute()->fetchField();
+      if (!$has) {
+        user_role_grant_permissions($role->rid, array('use medremind'));
+        drupal_static_reset('user_access');
+        drupal_static_reset('user_role_permissions');
+      }
     }
-    variable_set('medremind_permission_fixed', TRUE);
   }
 
-  // Redirect anonymous users on medremind pages to login
+  // Redirect anonymous users to login
   if ($user->uid == 0) {
     $path = current_path();
-
     $protected = array(
-      'medremind',
-      'medremind/add',
-      'medremind/history',
-      'medremind/settings',
-      'medremind/reports',
-      'medremind/notifications',
-      'medremind/export',
-      'medremind/prescriptions',
-      'medremind/profile',
+      'medremind', 'medremind/add', 'medremind/history', 'medremind/settings',
+      'medremind/reports', 'medremind/notifications', 'medremind/export',
+      'medremind/prescriptions', 'medremind/profile',
     );
-
     if (in_array($path, $protected)) {
       drupal_goto('medremind/login', array('query' => array('destination' => $path)));
     }
