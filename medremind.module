@@ -10,18 +10,30 @@ define('MEDREMIND_ACTION_TAKEN', 'taken');
 define('MEDREMIND_ACTION_MISSED', 'missed');
 define('MEDREMIND_ACTION_SKIPPED', 'skipped');
 
+// Email: FALSE = block emails on localhost, TRUE = send real emails
+if (!defined('MEDREMIND_SEND_EMAILS')) {
+  define('MEDREMIND_SEND_EMAILS', FALSE);
+}
 /**
  * Implements hook_init().
- * Redirect anonymous users to login page when accessing /medremind.
  */
 function medremind_init() {
   global $user;
 
-  // Only redirect anonymous users on medremind pages
+  // One-time fix: grant permission to authenticated users
+  $fixed = variable_get('medremind_permission_fixed', FALSE);
+  if (!$fixed) {
+    $role = user_role_load_by_name('authenticated user');
+    if ($role) {
+      user_role_grant_permissions($role->rid, array('use medremind'));
+    }
+    variable_set('medremind_permission_fixed', TRUE);
+  }
+
+  // Redirect anonymous users on medremind pages to login
   if ($user->uid == 0) {
     $path = current_path();
 
-    // Pages that need login
     $protected = array(
       'medremind',
       'medremind/add',
@@ -304,8 +316,10 @@ function medremind_help($path, $arg) {
  * Implements hook_cron().
  */
 function medremind_cron() {
-  module_load_include('inc', 'medremind', 'includes/medremind.cron');
-  _medremind_run_cron_tasks();
+  $loaded = module_load_include('inc', 'medremind', 'includes/medremind.cron');
+  if ($loaded) {
+    _medremind_process_reminders();
+  }
 }
 
 
@@ -314,30 +328,34 @@ function medremind_cron() {
  */
 function medremind_mail($key, &$message, $params) {
   $site = variable_get('medremind_site_name', 'MedRemind');
-  $name = format_username($params['account']);
-  $url = url('medremind', array('absolute' => TRUE));
 
   if ($key == 'dose_reminder') {
     $message['subject'] = t('[@site] Time to take @med', array(
       '@site' => $site, '@med' => $params['med_name'],
     ));
-    $message['body'][] = t("Hello @name,\n\nTime to take your medication:\n  💊 @med — @dosage\n\nLog your dose: @url\n\n— @site", array(
-      '@name' => $name, '@med' => $params['med_name'],
-      '@dosage' => $params['med_dosage'], '@url' => $url, '@site' => $site,
+    $message['body'][] = t("Hello,\n\nTime to take: @med (@dosage)\n\n— @site", array(
+      '@med' => $params['med_name'],
+      '@dosage' => $params['med_dosage'],
+      '@site' => $site,
     ));
   }
 
   if ($key == 'daily_summary') {
-    $total = $params['taken'] + $params['missed'] + $params['skipped'];
-    $pct = $total > 0 ? round(($params['taken'] / $total) * 100) : 0;
-    $message['subject'] = t('[@site] Daily Summary — @date', array(
-      '@site' => $site, '@date' => $params['date'],
+    $message['subject'] = t('[@site] Daily Summary', array('@site' => $site));
+    $message['body'][] = t("Today: Taken @t, Missed @m, Skipped @s\n\n— @site", array(
+      '@t' => $params['taken'],
+      '@m' => $params['missed'],
+      '@s' => $params['skipped'],
+      '@site' => $site,
     ));
-    $message['body'][] = t("Hello @name,\n\nSummary for @date:\n  ✅ Taken: @taken\n  ❌ Missed: @missed\n  ⏭️ Skipped: @skipped\n  📊 Adherence: @pct%\n\nDashboard: @url\n\n— @site", array(
-      '@name' => $name, '@date' => $params['date'], '@taken' => $params['taken'],
-      '@missed' => $params['missed'], '@skipped' => $params['skipped'],
-      '@pct' => $pct, '@url' => $url, '@site' => $site,
-    ));
+  }
+}
+function medremind_mail_alter(&$message) {
+  if (!defined('MEDREMIND_SEND_EMAILS') || !MEDREMIND_SEND_EMAILS) {
+    // Block all medremind emails AND Drupal user emails on localhost
+    if (strpos($message['id'], 'medremind') === 0 || strpos($message['id'], 'user_') === 0) {
+      $message['send'] = FALSE;
+    }
   }
 }
 
