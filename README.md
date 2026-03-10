@@ -9,29 +9,33 @@ A complete medication reminder and tracking application built as a custom Drupal
 - **Medication CRUD** — Add, edit, delete medications with dosage, frequency, and multi-time scheduling
 - **AJAX Dashboard** — Take/Skip doses without page reload with real-time stat updates
 - **Streak Tracking** — Consecutive day tracking with milestone notifications (7, 14, 30, 60, 90, 365 days)
-- **Cron Reminders** — Automated email reminders, auto-missed dose marking, daily summary emails
+- **Toast Notifications** — Popup alerts with sound on Take/Skip actions
 - **On-Site Notifications** — Bell icon with unread badge, dropdown preview, full notifications page
+- **Cron Background Tasks** — Auto-missed dose marking, log cleanup, notification generation
 - **Reports & Analytics** — Adherence charts, per-medication breakdown, streak leaderboard
-- **CSV Export/Import** — Export medications/history/full data, import from CSV with validation
+- **CSV Export/Import** — Export medications/history/full data, import with validation
 - **Prescription Entity** — Entity API-based prescription tracking with refills and expiry
+- **User System** — Custom branded login, registration, profile with stats, logout
 - **Admin Settings** — Global configuration with live system statistics
-- **37 Automated Tests** — SimpleTest test cases covering all functionality
-- **Responsive Design** — Works on desktop, tablet, and mobile
+- **Pagination** — Paged history with Drupal's pager system
+- **37 Automated Tests** — SimpleTest covering installation, access, CRUD, AJAX, admin, entity
+- **Responsive Design** — Desktop, tablet, mobile with CSS Grid and Flexbox
 
 ---
 
-## Technical Details
+## Technical Overview
 
 | Metric | Count |
 |--------|-------|
 | Database Tables | 8 (7 custom + 1 entity) |
-| Routes/Endpoints | 18+ |
+| Hooks Implemented | 13 |
+| Routes/Endpoints | 24 |
+| Forms | 10 |
+| Include Files | 12 |
 | Template Files | 3 |
-| Include Files | 10 |
 | Test Cases | 37 |
-| CSS Lines | 1300+ |
-
-**Architecture:** Custom Tables (db_select/db_insert) + Entity API (entity_save/entity_load)
+| Cron Tasks | 7 |
+| CSS Lines | 1250+ |
 
 ---
 
@@ -40,37 +44,19 @@ A complete medication reminder and tracking application built as a custom Drupal
 | # | Table | Type | Purpose |
 |---|-------|------|---------|
 | 1 | `medremind_medications` | Custom | Medication data |
-| 2 | `medremind_schedule` | Custom | Dose times per medication |
-| 3 | `medremind_log` | Custom | Action history (taken/missed/skipped) |
-| 4 | `medremind_reminders` | Custom | Email reminder queue |
-| 5 | `medremind_streaks` | Custom | Streak tracking per medication |
+| 2 | `medremind_schedule` | Custom | Dose times |
+| 3 | `medremind_log` | Custom | Action history |
+| 4 | `medremind_reminders` | Custom | Reminder queue |
+| 5 | `medremind_streaks` | Custom | Streak tracking |
 | 6 | `medremind_settings` | Custom | User preferences |
 | 7 | `medremind_notifications` | Custom | On-site notifications |
-| 8 | `medremind_prescriptions` | Entity | Prescription records (Entity API) |
+| 8 | `medremind_prescriptions` | Entity | Prescriptions (Entity API) |
 
 ---
 
-## Routes
+## Hooks Implemented (13)
 
-| Path | Description |
-|------|-------------|
-| `/medremind` | Dashboard |
-| `/medremind/add` | Add medication form |
-| `/medremind/edit/%` | Edit medication |
-| `/medremind/delete/%` | Delete confirmation |
-| `/medremind/history` | Dose history |
-| `/medremind/settings` | User settings |
-| `/medremind/reports` | Reports & analytics |
-| `/medremind/notifications` | All notifications |
-| `/medremind/export` | Export/Import page |
-| `/medremind/prescriptions` | Prescriptions (Entity) |
-| `/medremind/prescription/add` | Add prescription |
-| `/medremind/take/%/ajax` | AJAX: Take dose |
-| `/medremind/skip/%/ajax` | AJAX: Skip dose |
-| `/medremind/export/medications/csv` | Download medications CSV |
-| `/medremind/export/history/csv` | Download history CSV |
-| `/medremind/export/full/csv` | Download full export CSV |
-| `/admin/config/medremind` | Admin settings |
+hook_init, hook_menu, hook_permission, hook_theme, hook_schema, hook_install, hook_uninstall, hook_cron, hook_mail, hook_mail_alter, hook_block_info, hook_block_view, hook_entity_info
 
 ---
 
@@ -78,139 +64,78 @@ A complete medication reminder and tracking application built as a custom Drupal
 
 ```
 medremind/
-├── medremind.info                      # Module registration
-├── medremind.module                    # All hooks
-├── medremind.install                   # Schema (8 tables), install, uninstall, updates
-├── medremind.test                      # 37 SimpleTest test cases
-├── medremind.css                       # Complete stylesheet (1300+ lines)
-├── README.md
-├── .gitignore
-├── js/
-│   └── medremind.js                    # AJAX Take/Skip handlers
+├── medremind.info
+├── medremind.module              (13 hooks + NullMailSystem class)
+├── medremind.install             (8 tables + 3 update hooks)
+├── medremind.test                (37 tests, 7 classes)
+├── medremind.css                 (1250+ lines)
+├── js/medremind.js               (AJAX + Toast + Web Audio)
 ├── includes/
-│   ├── medremind.pages.inc             # Dashboard + History page callbacks
-│   ├── medremind.forms.inc             # Add/Edit/Delete/Settings forms
-│   ├── medremind.admin.inc             # Admin settings (system_settings_form)
-│   ├── medremind.ajax.inc              # Take/Skip AJAX endpoints + streak logic
-│   ├── medremind.blocks.inc            # Sidebar blocks + notification bell
-│   ├── medremind.cron.inc              # Reminders, auto-miss, cleanup, notifications
-│   ├── medremind.notifications.inc     # Notification CRUD + pages + AJAX
-│   ├── medremind.reports.inc           # Reports with charts + streaks
-│   ├── medremind.export.inc            # CSV export/import + template
-│   ├── medremind.entity.inc            # Prescription Entity class + controllers
-│   └── medremind.prescription.pages.inc # Prescription user pages + forms
+│   ├── medremind.pages.inc       (Dashboard + History with pagination)
+│   ├── medremind.forms.inc       (Add/Edit/Delete + User settings)
+│   ├── medremind.admin.inc       (Admin settings)
+│   ├── medremind.ajax.inc        (Take/Skip + streak logic)
+│   ├── medremind.blocks.inc      (Sidebar blocks + notification bell)
+│   ├── medremind.cron.inc        (7 cron tasks)
+│   ├── medremind.notifications.inc (CRUD + pages + AJAX)
+│   ├── medremind.reports.inc     (Charts + breakdown + streaks)
+│   ├── medremind.export.inc      (CSV export/import)
+│   ├── medremind.entity.inc      (Prescription Entity classes)
+│   ├── medremind.prescription.pages.inc (Prescription forms)
+│   └── medremind.user.inc        (Login/Register/Profile/Logout)
 └── templates/
-    ├── medremind-dashboard.tpl.php     # Dashboard with stats bar
-    ├── medremind-med-card.tpl.php      # Single medication card
-    └── medremind-history.tpl.php       # History with adherence circle
+    ├── medremind-dashboard.tpl.php
+    ├── medremind-med-card.tpl.php
+    └── medremind-history.tpl.php
 ```
-
----
-
-## Development Steps
-
-| Step | Feature | Approach |
-|------|---------|----------|
-| 1 | Module setup, routes, permissions | hook_menu, hook_permission |
-| 2 | Database schema (6 tables) | hook_schema, db_select/db_insert |
-| 3 | Templates and theming | hook_theme, .tpl.php files |
-| 4 | Add/Edit/Delete forms | Form API with validation |
-| 5 | Dashboard with AJAX Take/Skip | jQuery + drupal_json_output |
-| 6 | Sidebar blocks | hook_block_info/view |
-| 7 | Admin settings | system_settings_form |
-| 8 | Cron & Email reminders | hook_cron, hook_mail |
-| 9 | On-site notifications | Custom notification system |
-| 10 | Reports & Analytics | Pure CSS charts |
-| 11 | CSV Export/Import | fputcsv, fgetcsv |
-| 12 | Final polish & navigation | Tab navigation |
-| 13 | Prescription Entity | Entity API module |
 
 ---
 
 ## Custom Tables vs Entity API
 
-This module demonstrates **both approaches** side by side:
-
 | Feature | Custom Tables | Entity API |
 |---------|--------------|------------|
 | Used for | Medications, Log, Streaks | Prescriptions |
-| CRUD | Manual db_insert/update/delete | entity_save/load/delete |
+| CRUD | db_insert/update/delete | entity_save/load/delete |
 | Forms | Manual Form API | Auto-generated |
-| Admin UI | Custom pages | EntityDefaultUIController |
-| Fieldable | No | Yes (attach fields via UI) |
-| Views | Manual queries | Automatic integration |
-| Code amount | More code, more control | Less code, more magic |
+| Fieldable | No | Yes |
+| Views | Manual queries | Automatic |
+
+---
+
+## Security
+
+check_plain (XSS), parameterized queries (SQL injection), form_set_error (validation), access callbacks (authorization), ownership checks (uid match), user_authenticate (login), valid_email_address, password min length, username restrictions
 
 ---
 
 ## Requirements
 
-- Drupal 7.x
-- PHP 5.6+ (PHP 7.4 recommended)
-- MySQL 5.5+
-- Entity API module (drupal.org/project/entity)
+- Drupal 7.x, PHP 5.6+, MySQL 5.5+, Entity API module
 
 ---
 
 ## Installation
 
-1. Copy `medremind/` to `sites/all/modules/custom/`
-2. Download and enable Entity API module
+1. Enable Entity API module
+2. Copy medremind/ to sites/all/modules/custom/
 3. Enable MedRemind at Admin → Modules
-4. Place sidebar blocks at Admin → Structure → Blocks
+4. Grant "Use MedRemind" to authenticated user role
 5. Configure at Admin → Configuration → MedRemind Settings
-6. Set front page to `medremind` at Admin → Configuration → Site Information
-7. Add menu links: Admin → Structure → Menus → Main menu
 
 ---
 
 ## Testing
 
-```bash
-# Run all tests via command line
-php scripts/run-tests.sh --group "MedRemind"
-
-# Or via UI
-Admin → Configuration → Development → Testing → Check "MedRemind" → Run tests
 ```
-
-### Test Coverage
-
-| Test Class | Tests | Coverage |
-|------------|-------|----------|
-| MedRemindInstallTestCase | 3 | Tables, variables, permissions |
-| MedRemindAccessTestCase | 6 | Role-based access (403/200) |
-| MedRemindMedicationCRUDTestCase | 9 | Add, edit, delete, validation |
-| MedRemindDashboardTestCase | 8 | All pages load correctly |
-| MedRemindAjaxTestCase | 5 | Take/skip, streaks, security |
-| MedRemindAdminTestCase | 2 | Settings save, statistics |
-| MedRemindPrescriptionTestCase | 4 | Entity CRUD, table exists |
-| **Total** | **37** | |
-
----
-
-## Screenshots
-
-
-
----
-
-## Tech Stack
-
-- **CMS:** Drupal 7
-- **Language:** PHP 7.4
-- **Database:** MySQL 5.7
-- **Frontend:** jQuery, CSS3 Grid/Flexbox
-- **Architecture:** MVC (Drupal hooks), Entity API, Form API, Theme API
-- **Testing:** SimpleTest (DrupalWebTestCase)
-- **Version Control:** Git
+Admin → Modules → Enable "Testing"
+Admin → Configuration → Development → Testing → Check "MedRemind" → Run
+```
 
 ---
 
 ## Author
 
-Built by **Hona** as a portfolio project demonstrating Drupal 7 custom module development — database design (8 tables), Entity API, Form API with validation, AJAX integration, cron automation, testing methodology, and responsive CSS design.
-
----
+Built by **Hona** — 8 tables, 13 hooks, Entity API, Form API, AJAX, toast notifications, cron automation, 37 tests, responsive CSS.
 
 ## License
